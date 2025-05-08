@@ -48,6 +48,5 @@ project-root/
   * `update.php`: Updates existing student records.
   * `delete.php`: Deletes a student record.
   * `fetch.php`: Retrieves student data to display in the table.
-
 ---
 
