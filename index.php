@@ -30,7 +30,7 @@
 
         <!-- Personal Information Section -->
         <h4 class="section-title">Personal Information</h4>
-        <form id="studentForm">
+        <form id="studentForm" method="POST">
             <div class="form-row">
                 <div>
                     <label for="studentName" class="form-label">Full Name</label>
