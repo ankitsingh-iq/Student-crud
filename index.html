@@ -34,22 +34,22 @@
             <div class="form-row">
                 <div>
                     <label for="studentName" class="form-label">Full Name</label>
-                    <input type="text" class="form-control" id="studentName" placeholder="Enter Full Name">
+                    <input type="text" class="form-control" id="studentName" name="full_name" placeholder="Enter Full Name">
                 </div>
                 <div>
                     <label for="dob" class="form-label">Date of Birth</label>
-                    <input type="date" class="form-control" id="dob">
+                    <input type="date" class="form-control" name="dob"id="dob">
                 </div>
             </div>
 
             <div class="form-row">
                 <div>
                     <label for="email" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" placeholder="Enter Email">
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email">
                 </div>
                 <div>
                     <label for="phone" class="form-label">Phone</label>
-                    <input type="text" class="form-control" id="phone" placeholder="Enter Phone">
+                    <input type="text" class="form-control" id="phone" name="phone"placeholder="Enter Phone">
                 </div>
             </div>
 
@@ -87,7 +87,7 @@
             <div class="form-row">
                 <div>
                     <label for="country" class="form-label">Country</label>
-                    <select class="form-select" id="country">
+                    <select class="form-select" id="country" name="country">
                         <option>Select Country</option>
                         <option>India</option>
                         <option>USA</option>
@@ -95,7 +95,7 @@
                 </div>
                 <div>
                     <label for="state" class="form-label">State</label>
-                    <select class="form-select" id="state">
+                    <select class="form-select" id="state"  name="state">
                         <option>Gujarat</option>
                         <option>Maharstra</option>
                         <option>Rajasthan</option> 
@@ -107,7 +107,7 @@
                 </div>
                 <div>
                     <label for="city" class="form-label">City</label>
-                    <select class="form-select" id="city">
+                    <select class="form-select" id="city" name="city">
                         <option>Select City</option>
                         <option>Ahmedabad</option>
                         <option>Surat</option>
@@ -122,11 +122,11 @@
             <h4 class="section-title">Document Upload</h4>
             <div class="mb-3">
                 <label for="documents" class="form-label">Upload Documents</label>
-                <input class="form-control" type="file" id="documents" multiple>
+                <input class="form-control" type="file" id="documents" id="documents" multiple>
             </div>
 
         
-            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="submit" class="btn btn-primary" name="submit" value="submit">submit</button>
         </form>
 
         <!-- Table Section -->
