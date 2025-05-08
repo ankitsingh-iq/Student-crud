@@ -51,3 +51,72 @@ project-root/
 
 ---
 
+# Student Data Management System Roadmap
+
+This roadmap outlines the structured steps to create a fully functional Student Data Management System using PHP, MySQL, and Bootstrap for UI.
+
+## **Phase 1: Database Design**
+
+1. Create a MySQL database named **student\_management**.
+2. Design a table called **students** with the following fields:
+
+   * `id` (Primary Key, Auto Increment)
+   * `full_name` (VARCHAR)
+   * `dob` (DATE)
+   * `email` (VARCHAR)
+   * `phone` (VARCHAR)
+   * `gender` (ENUM: 'Male', 'Female', 'Other')
+   * `address` (TEXT)
+   * `pincode` (VARCHAR)
+   * `country` (VARCHAR)
+   * `state` (VARCHAR)
+   * `city` (VARCHAR)
+   * `documents` (TEXT, for storing file paths if required)
+
+## **Phase 2: Database Connection**
+
+1. Create a file named **db\_connect.php**.
+2. Establish a connection to the MySQL database using **MySQLi** or **PDO**.
+3. Include error handling for failed connections.
+
+## **Phase 3: CRUD Operations**
+
+### Create (Insert Logic)
+
+* Capture form data upon submission.
+* Validate and sanitize the inputs.
+* Execute an `INSERT` SQL query to store the data.
+
+### Read (Fetch Logic)
+
+* Fetch all student records from the database.
+* Use a `SELECT` query and render the data inside the HTML table.
+
+### Update (Edit Logic)
+
+* When 'Edit' is clicked, fetch the student's data and populate the form fields.
+* Allow modifications and execute an `UPDATE` SQL query to save changes.
+
+### Delete (Delete Logic)
+
+* Triggered when 'Delete' is clicked.
+* Remove the student record from the database using a `DELETE` query.
+* Implement AJAX for smooth deletion without page refresh.
+
+## **Phase 4: Additional Functionalities**
+
+### Document Upload Handling
+
+* Manage file uploads and store paths in the database.
+* Implement validation (file type, size).
+
+### Import/Export Logic
+
+* **Import:** Parse CSV files and insert multiple records.
+* **Export:** Generate CSV or Excel files of student records.
+
+### PDF Generation (Optional)
+
+* Use **TCPDF** or **FPDF** to generate student information PDFs.
+
+
