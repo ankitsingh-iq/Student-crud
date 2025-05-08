@@ -13,26 +13,26 @@
 
         <!-- Personal Information Section -->
         <h4 class="section-title">Personal Information</h4>
-        <form id="studentForm">
+        <form id="studentForm" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
             <div class="form-row">
                 <div>
                     <label for="studentName" class="form-label">Full Name</label>
-                    <input type="text" class="form-control" id="studentName" placeholder="Enter Full Name">
+                    <input type="text" class="form-control" id="studentName" name="fullName" placeholder="Enter Full Name">
                 </div>
                 <div>
                     <label for="dob" class="form-label">Date of Birth</label>
-                    <input type="date" class="form-control" id="dob">
+                    <input type="date" class="form-control" id="dob" name="dob">
                 </div>
             </div>
 
             <div class="form-row">
                 <div>
                     <label for="email" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" placeholder="Enter Email">
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email">
                 </div>
                 <div>
                     <label for="phone" class="form-label">Phone</label>
-                    <input type="text" class="form-control" id="phone" placeholder="Enter Phone">
+                    <input type="text" class="form-control" id="phone" name="phone" placeholder="Enter Phone">
                 </div>
             </div>
 
@@ -57,18 +57,18 @@
             <div class="form-row">
                 <div>
                     <label for="address" class="form-label">Address</label>
-                    <input type="text" class="form-control" id="address" placeholder="Enter Address">
+                    <input type="text" class="form-control" id="address" name="address" placeholder="Enter Address">
                 </div>
                 <div>
                     <label for="pincode" class="form-label">Pincode</label>
-                    <input type="text" class="form-control" id="pincode" placeholder="Enter Pincode">
+                    <input type="text" class="form-control" id="pincode" name="pincode" placeholder="Enter Pincode">
                 </div>
             </div>
 
             <div class="form-row">
                 <div>
                     <label for="country" class="form-label">Country</label>
-                    <select class="form-select" id="country">
+                    <select class="form-select" id="country" name="country">
                         <option>Select Country</option>
                         <option>India</option>
                         <option>USA</option>
@@ -76,13 +76,13 @@
                 </div>
                 <div>
                     <label for="state" class="form-label">State</label>
-                    <select class="form-select" id="state">
+                    <select class="form-select" id="state" name="state">
                         <option>Select State</option>
                     </select>
                 </div>
                 <div>
                     <label for="city" class="form-label">City</label>
-                    <select class="form-select" id="city">
+                    <select class="form-select" id="city" name="city">
                         <option>Select City</option>
                     </select>
                 </div>
@@ -92,7 +92,7 @@
             <h4 class="section-title">Document Upload</h4>
             <div class="mb-3">
                 <label for="documents" class="form-label">Upload Documents</label>
-                <input class="form-control" type="file" id="documents" multiple>
+                <input class="form-control" type="file" id="documents" name="document" multiple>
             </div>
 
             <!-- Import/Export Section -->
