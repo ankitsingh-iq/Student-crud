@@ -12,7 +12,7 @@
     <div class="container">
         <div class="card shadow-lg">
             <h2 class="text-center mb-4">Student Data Management</h2>
-            <form action="#" method="post" enctype="multipart/form-data">
+            <form action="./insert.php" method="post" enctype="multipart/form-data">
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label for="name" class="form-label">Full Name</label>
