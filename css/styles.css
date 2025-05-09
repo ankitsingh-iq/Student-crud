@@ -1,0 +1,24 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.container {
+    max-width: 1000px;
+    margin-top: 50px;
+}
+
+.card {
+    padding: 40px;
+}
+
+#gender {
+    margin-left: 70px;
+}
+
+#gFemale {
+    margin-left: 70px;
+}
+
+#btnSubmit {
+    padding: 10px 30px;
+}
