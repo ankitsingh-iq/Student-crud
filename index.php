@@ -41,6 +41,7 @@
                     <input type="date" class="form-control" name="dob"id="dob">
                 </div>
             </div>
+            
 
             <div class="form-row">
                 <div>
