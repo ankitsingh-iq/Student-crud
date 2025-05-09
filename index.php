@@ -16,7 +16,7 @@
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label for="name" class="form-label">Full Name</label>
-                        <input type="text" class="form-control" id="name" name="name" placeholder="Enter Name" required>
+                        <input type="text" class="form-control" id="name" name="fullName" placeholder="Enter Name" required>
                     </div>
     
                     <div class="col-md-4">
@@ -96,7 +96,7 @@
         
                 <div class="mb-3">
                     <label for="document" class="form-label">Upload Document</label>
-                    <input class="form-control" type="file" id="document" name="document">
+                    <input class="form-control" type="file" id="document" name="documents">
                 </div>
 
                 <!-- Import/Export Section -->
