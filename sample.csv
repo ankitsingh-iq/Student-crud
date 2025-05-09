@@ -1,0 +1,11 @@
+full_name,dob,email,phone,gender,address,pincode,country,state,city
+John Doe,1995-05-10,johndoe@example.com,1234567890,Male,123 Main St,110011,USA,California,Los Angeles
+Jane Smith,1996-08-25,janesmith@example.com,0987654321,Female,456 Elm St,220022,USA,New York,New York City
+Michael Johnson,1992-12-15,michaelj@example.com,5678901234,Male,789 Maple St,330033,Canada,Ontario,Toronto
+Emily Davis,1998-02-05,emilyd@example.com,6789012345,Female,101 Pine St,440044,Australia,Victoria,Melbourne
+David Wilson,1994-07-22,davidw@example.com,7890123456,Male,202 Oak St,550055,UK,England,London
+Sarah Brown,1997-11-18,sarahb@example.com,8901234567,Female,303 Birch St,660066,India,Delhi,New Delhi
+Daniel Garcia,1993-03-09,danielg@example.com,9012345678,Male,404 Cedar St,770077,Spain,Madrid,Madrid City
+Olivia Martinez,2000-01-14,oliviam@example.com,1230984567,Female,505 Spruce St,880088,Italy,Lazio,Rome
+Christopher Rodriguez,1991-10-30,christopherr@example.com,2345678901,Male,606 Redwood St,990099,Mexico,Jalisco,Guadalajara
+Sophia Lee,1999-06-07,sophial@example.com,3456789012,Female,707 Palm St,101010,South Korea,Seoul,Seoul City
