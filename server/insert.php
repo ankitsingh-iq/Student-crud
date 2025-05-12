@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/config/config.php';
 
-// print_r($_POST);
+
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -35,31 +35,53 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $fileDestination = $uploadDir . basename($fileName);
                 $dbdocuments[] = $fileDestination;
 
-                if (move_uploaded_file($fileTmpName, $fileDestination)) {
-                    echo "File uploaded successfully: " . $fileName . "<br>";
-                } else {
-                    echo "Failed to upload: " . $fileName . "<br>";
+                if (!move_uploaded_file($fileTmpName, $fileDestination)) {
+                    // http_response_code(500);
+                    echo json_encode([
+                        "status" => "error",
+                        "message" => "Failed to upload file: " . $fileName
+                    ]);
+                    exit;
                 }
             } else {
-                echo "Error uploading file: " . $fileName . "<br>";
+                // http_response_code(500);
+                echo json_encode([
+                    "status" => "error",
+                    "message" => "Error uploading file: " . $fileName
+                ]);
+                exit;
             }
         }
     } else {
-        echo "No files were uploaded.";
+        // http_response_code(400);
+        echo json_encode([
+            "status" => "error",
+            "message" => "No files were uploaded."
+        ]);
+        exit;
     }
 
 
-    // print_r($dbdocuments);
-    // exit();
 
     // Step 2: Convert paths array to JSON
     $documentPaths = json_encode($dbdocuments);
 
-    $result = $conn->query("INSERT INTO `students`(`full_name`, `dob`, `email`, `phone`, `gender`, `address`, `pincode`,`country`,`state`,`city`,`documents`) VALUES ('$fullname','$dob','$email','$phone','$gender','$address','$pincode','$country','$state','$city','$documentPaths')");
+    try {
+        $result = $conn->query("INSERT INTO `students`(`full_name`, `dob`, `email`, `phone`, `gender`, `address`, `pincode`,`country`,`state`,`city`,`documents`) VALUES ('$fullname','$dob','$email','$phone','$gender','$address','$pincode','$country','$state','$city','$documentPaths')");
 
-    if ($result) {
-        echo "Record inserted successfully!";
-    } else {
-        echo "Failed to insert record: " . $conn->error;
+        if ($result) {
+            http_response_code(200);
+            echo json_encode([
+                "status" => "success",
+                "message" => "Record inserted successfully!"
+            ]);
+        } else {
+            throw new Exception("Failed to insert record: " . $conn->error);
+        }
+    } catch (Exception $e) {
+        echo json_encode([
+            "status" => "error",
+            "message" => $e->getMessage()
+        ]);
     }
 }

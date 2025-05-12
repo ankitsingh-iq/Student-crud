@@ -2,10 +2,6 @@
 
 require_once __DIR__ . '/server/config/config.php';
 
-
-
-
-
 ?>
 
 <!DOCTYPE html>
@@ -16,9 +12,16 @@ require_once __DIR__ . '/server/config/config.php';
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Student Data Management UI</title>
   <link rel="icon" href="assets/images/working.png" type="image/x-icon" />
+
+  <!-- boostrap CDN -->
   <link
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" />
+
+  <!-- SweetAlert2 CSS and JS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+
   <style>
     .section-title {
       margin-top: 40px;
@@ -46,7 +49,7 @@ require_once __DIR__ . '/server/config/config.php';
 
     <!-- Personal Information Section -->
     <h4 class="section-title">Personal Information</h4>
-    <form action="server/insert.php" method="post" id="studentForm" enctype="multipart/form-data">
+    <form class="needs-validation" action="server/insert.php" method="post" id="studentForm" enctype="multipart/form-data" novalidate>
       <div class="form-row">
         <div>
           <label for="studentName" class="form-label">Full Name</label>
@@ -267,9 +270,13 @@ require_once __DIR__ . '/server/config/config.php';
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
   <!-- jQuery CDN -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- SweetAlert2 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <!-- Custom JavaScript for dynamic dropdowns -->
+  <script src="js/script.js"></script>
   <script src="js/dynamic-dropdowns.js"></script>
-  <script src="js/fetch-student-list.js"></script>
+  <!-- <script src="js/fetch-student-list.js"></script> -->
   <script src="js/multiple-file-priview.js"></script>
 </body>
 
