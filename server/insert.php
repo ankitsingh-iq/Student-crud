@@ -15,10 +15,10 @@ $documents = $_POST["documents"];
 
 $requiredFields = [$name, $email, $phone, $dob, $gender, $address, $pincode, $country, $state, $city, $documents];
 
+try{
 
-if($_SERVER["REQUEST_METHOD"] == "POST") {
-    try {
-        $stmt = $conn->prepare("INSERT INTO students(full_name, dob, email, phone, ,gender, address, 
+    if($_SERVER["REQUEST_METHOD"] == "POST") {
+        $stmt = $conn->prepare("INSERT INTO students(full_name, dob, email, phone, gender, address, 
                                 pincode, country, state, city, documents) VALUES (:fName, :dob,
                                 :email, :phone, :gender, :address, :pin, :country, :state, :city, :doc)");
         $stmt->execute([
@@ -36,10 +36,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         ]);
 
         echo '<script>alert("New record inserted successfully!!!")</script>';
-    } catch(PDOException $e) {
-        echo $sql . "<br>" . $e->getMessage();
+    } else {
+        echo "error";
     }
-} else {
-    echo "error";
+}
+catch(PDOException $e) {
+    echo $sql . "<br>" . $e->getMessage();
 }
 ?>
