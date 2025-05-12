@@ -12,7 +12,7 @@
     <div class="container">
         <div class="card shadow-lg">
             <h2 class="text-center mb-4">Student Data Management</h2>
-            <form action="./insert.php" method="post" enctype="multipart/form-data">
+            <form action="server/insert.php" method="POST" enctype="multipart/form-data">
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label for="name" class="form-label">Full Name</label>
@@ -83,6 +83,9 @@
                         <label for="state" class="form-label">State</label>
                         <select class="form-select" id="state" name="state">
                             <option>Select State</option>
+                            <option>Gujarat</option>
+                            <option>Maharashtra</option>
+                            <option>Kerala</option>
                         </select>
                     </div>
                     
@@ -90,6 +93,10 @@
                         <label for="city" class="form-label">City</label>
                         <select class="form-select" id="city" name="city">
                             <option>Select City</option>
+                            <option>Ahmedabad</option>
+                            <option>Gandhinagar</option>
+                            <option>Vadodara</option>
+                            <option>Pune</option>
                         </select>
                     </div>
                 </div>
