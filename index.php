@@ -21,26 +21,12 @@ require_once __DIR__ . '/server/config/config.php';
   <!-- SweetAlert2 CSS and JS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
+  <!-- Toastr CSS (for styling the toast notifications) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />]
 
-  <style>
-    .section-title {
-      margin-top: 40px;
-      margin-bottom: 20px;
-      font-weight: bold;
-      border-bottom: 2px solid #333;
-      padding-bottom: 5px;
-    }
+  <!-- custom css -->
+  <link rel="stylesheet" href="css/styles.css">
 
-    .form-row {
-      display: flex;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-
-    .form-row>div {
-      flex: 1;
-    }
-  </style>
 </head>
 
 <body>
@@ -180,25 +166,6 @@ require_once __DIR__ . '/server/config/config.php';
         <div>
           <label for="country" class="form-label">Country</label>
           <select name="country" class="form-select " id="country" required>
-            <option value="Select Country">Select Country</option>
-            <?php
-            $result = $conn->query("SELECT * FROM tbl_countries");
-
-            // Check if the query failed
-            if ($result === false) {
-              die("Query failed: " . $conn->error); // Display error and stop script
-            }
-
-            // Proceed if query is successful
-            if ($result->num_rows > 0) {
-              while ($row = $result->fetch_assoc()) {
-                echo '<option value="' . $row['id'] . '">' . $row['name'] . '</option>';
-              }
-            } else {
-              echo '<option value="">No countries available</option>';
-            }
-
-            ?>
           </select>
           <div class="invalid-feedback">
             Please select a country.
@@ -207,29 +174,27 @@ require_once __DIR__ . '/server/config/config.php';
         <div>
           <label for="state" class="form-label">State</label>
           <select name="state" class="form-select" id="state" disabled>
-            <option>Select State</option>
           </select>
         </div>
         <div>
           <label for="city" class="form-label">City</label>
           <select name="city" class="form-select" id="city" disabled>
-            <option>Select City</option>
           </select>
         </div>
       </div>
 
       <!-- Document Upload Section -->
-      <h4 class="section-title">Document Upload</h4>
+      <!-- <h4 class="section-title">Document Upload</h4>
       <div class="mb-3">
         <label for="documents" class="form-label">Upload Documents</label>
         <input name="documents[]" class="form-control" type="file" id="documents" multiple required />
         <div class="invalid-feedback">
           Please upload at least one document.
         </div>
-      </div>
+      </div> -->
 
       <!-- Preview Section -->
-      <div id="imagePreviewContainer" class="d-flex gap-3 mt-3"></div>
+      <!-- <div id="imagePreviewContainer" class="d-flex gap-3 mt-3"></div> -->
       <button type="submit" class="btn btn-primary">Save</button>
     </form>
 
@@ -375,12 +340,13 @@ require_once __DIR__ . '/server/config/config.php';
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <!-- SweetAlert2 JS -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Toastr JS (for enabling the toast functionality) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
   <!-- Custom JavaScript -->
   <script src="js/script.js"></script>
-  <script src="js/dynamic-dropdowns.js"></script>
-  <script src="js/fetch-student-list.js"></script>
-  <script src="js/multiple-file-priview.js"></script>
+  <!-- <script src="js/fetch-student-list.js"></script> -->
+  <!-- <script src="js/multiple-file-priview.js"></script> -->
 </body>
 
 </html>

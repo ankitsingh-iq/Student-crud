@@ -1,5 +1,5 @@
 $(document).ready(function () {
-  // Self-invoking function for form validation
+  // !Self-invoking function for form validation
   (() => {
     "use strict";
 
@@ -25,7 +25,71 @@ $(document).ready(function () {
     });
   })();
 
-  // Custom form submission with AJAX
+  //! Country DropDown
+  populateCountryDropdown();
+
+  // !When a country is selected, populate the state dropdown
+  $("#country").change(function () {
+    var countryId = $(this).val();
+    if (countryId) {
+      //Make Sure City Diabale
+      $("#city").empty();
+      $("#city").prop("disabled", true);
+      $("#state").prop("disabled", false); // Enable state dropdown
+      $.ajax({
+        type: "POST",
+        url: "server/fetch-state.php",
+        data: { countryId: countryId },
+        dataType: "json",
+        success: function (response) {
+          $("#state").empty();
+          $("#state").append('<option value="">Select State</option>');
+          $.each(response.data, function (index, state) {
+            $("#state").append(
+              `<option value="${state.id}">${state.name}</option>`
+            );
+          });
+        },
+        error: function (xhr, status, error) {
+          console.error(`Error ${xhr.status}: ${xhr.statusText} - ${error}`);
+          toastr.error("Failed to load states.");
+        },
+      });
+    } else {
+      $("#state").prop("disabled", true); // Disable state dropdown if no country is selected
+    }
+  });
+
+  // !When a state is selected, populate the city dropdown
+  $(document).on("change", "#state", function () {
+    var stateId = $(this).val();
+    if (stateId) {
+      $("#city").prop("disabled", false); // Enable city dropdown
+      $.ajax({
+        type: "POST",
+        url: "server/fetch-city.php",
+        data: { stateId: stateId },
+        dataType: "json",
+        success: function (response) {
+          $("#city").empty();
+          $("#city").append('<option value="">Select City</option>');
+          $.each(response.data, function (index, city) {
+            $("#city").append(
+              `<option value="${city.id}">${city.name}</option>`
+            );
+          });
+        },
+        error: function (xhr, status, error) {
+          console.error(`Error ${xhr.status}: ${xhr.statusText} - ${error}`);
+          toastr.error("Failed to load cities.");
+        },
+      });
+    } else {
+      $("#city").prop("disabled", true); // Disable city dropdown if no state is selected
+    }
+  });
+
+  // !form submission with AJAX
   $("#studentForm").on("submit", function (e) {
     e.preventDefault(); // Prevent form submission
 
@@ -35,11 +99,14 @@ $(document).ready(function () {
       this.classList.add("was-validated");
       return; // Stop the AJAX request
     }
+
     let formData = new FormData(this);
-    // console.log(`form data`,formData);
+    const isEdit = formData.get("id") !== ""; // If `id` is not empty, it's an Edit
+    const url = isEdit ? "server/update.php" : "server/insert.php";
+
     $.ajax({
       type: "post",
-      url: "server/insert.php",
+      url: url,
       data: formData,
       contentType: false, // Prevent jQuery from overriding content type
       processData: false, // Prevent jQuery from processing the data
@@ -57,28 +124,27 @@ $(document).ready(function () {
         }
       },
       error: function (xhr, status, error) {
-        console.log("Error Status:", status); // Logs "error" if it failed
-        console.log("Error Message:", error); // Logs the error message
-        console.log("Server Response:", xhr.responseText); // Logs the raw server response
+        console.error(`Error ${xhr.status}: ${xhr.statusText} - ${error}`);
         const response = JSON.parse(xhr.responseText);
 
-        console.log("error respnse ", response);
-
-        // If there are field-specific errors, show them
         if (response.status === "error" && response.errors) {
           Object.keys(response.errors).forEach(function (field) {
             const errorMessage = response.errors[field];
             const inputElement = $(`[name="${field}"]`);
-            console.log(inputElement);
-            //  Remove any previous "is-valid" class if present
-            inputElement.removeClass("is-valid");
-            //  Highlight the field and show the message
+
+            // Remove both "is-valid" and "is-invalid" classes
+            inputElement.removeClass("is-valid is-invalid");
+
+            // Add only "is-invalid" and display the error message
             inputElement.addClass("is-invalid");
+
+            // Check if the error message element exists; if not, create it
             let errorDiv = inputElement.next(".invalid-feedback");
-            if (errorDiv.length > 0) {
-              // If the error div exists, just update the message
-              errorDiv.text(errorMessage);
+            if (errorDiv.length === 0) {
+              errorDiv = $('<div class="invalid-feedback"></div>');
+              inputElement.after(errorDiv);
             }
+            errorDiv.text(errorMessage);
           });
         } else {
           Swal.fire({
@@ -177,7 +243,6 @@ $(document).ready(function () {
   });
 
   //View Section
-
   $(document).on("click", ".view-btn", function () {
     var studentId = $(this).data("id");
     $.ajax({
@@ -205,3 +270,32 @@ $(document).ready(function () {
     });
   });
 });
+
+function populateCountryDropdown() {
+  $.ajax({
+    url: "server/fetch-countries.php",
+    type: "GET",
+    dataType: "json",
+    success: function (response) {
+      if (response.status === "success") {
+        $("#country").empty();
+        $("#country").append('<option value="">Select Country</option>');
+        // Populate dropdown with data from the server
+        $.each(response.data, function (index, country) {
+          $("#country").append(
+            `<option value="${country.id}">${country.name}</option>`
+          );
+        });
+      }
+    },
+    error: function (xhr, status, error) {
+      console.error(`Error ${xhr.status}: ${xhr.statusText} - ${error}`);
+      // Handle server error (500 status code)
+      if (xhr.status === 500) {
+        toastr.error("Server Error! Failed to load countries."); // Show server error toast
+      } else {
+        toastr.warning("Unexpected error occurred while loading countries."); // Show warning toast for other errors
+      }
+    },
+  });
+}

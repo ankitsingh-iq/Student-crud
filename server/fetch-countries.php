@@ -1,6 +1,7 @@
 <?php
-
 require_once __DIR__ . '/config/config.php';
+
+
 
 if ($conn->connect_error) {
     http_response_code(500); // Internal Server Error
@@ -8,12 +9,8 @@ if ($conn->connect_error) {
     die();
 }
 
-
-$id=$_POST['stateId'];
-
-$query = "SELECT id, name FROM cities WHERE state_id = ?";
+$query = "SELECT id, name FROM tbl_countries";
 $stmt = $conn->prepare($query);
-$stmt->bind_param("i", $id);
 
 if (!$stmt->execute()) {
     http_response_code(500);
@@ -29,3 +26,4 @@ echo json_encode(["status" => "success", "data" => $data]);
 $stmt->close();
 $conn->close();
 ?>
+
