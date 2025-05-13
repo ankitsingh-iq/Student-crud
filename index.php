@@ -15,25 +15,25 @@ include 'server/db_connection.php';
 <body>
     <div class="container">
         <div class="card shadow-lg">
-            <h2 class="text-center mb-4">Student Data Management</h2>
+            <h2 class="pt-2 pb-2 mb-4 border-dark border-bottom text-center text-black border-2">Student Data Management</h2>
             <form action="server/insert.php" method="POST" enctype="multipart/form-data">
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label for="name" class="form-label">Full Name</label>
                         <input type="text" class="form-control" id="name" name="fullName" placeholder="Enter Name">
-                        <span class="error"> <?php echo $nameErr; ?> </span><br>
+                        <!-- <span class="error"> <?php echo $nameErr; ?> </span><br> -->
                     </div>
 
                     <div class="col-md-4">
                         <label for="email" class="form-label">Email</label>
                         <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email">
-                        <span class="error"> <?php echo $emailErr; ?> </span><br>
+                        <!-- <span class="error"> <?php echo $emailErr; ?> </span><br> -->
                     </div>
 
                     <div class="col-md-4">
                         <label for="phone" class="form-label">Phone</label>
                         <input type="text" class="form-control" id="phone" name="phone" placeholder="Enter Phone">
-                        <span class="error"> <?php echo $phoneErr; ?> </span><br>
+                        <!-- <span class="error"> <?php echo $phoneErr; ?> </span><br> -->
                     </div>
 
                 </div><br>
@@ -115,8 +115,8 @@ include 'server/db_connection.php';
                 <!-- Import/Export Section -->
                 <h4 class="section-title">Data Management</h4>
                 <div class="mb-3">
-                    <button type="button" class="btn btn-secondary">Import Data</button>
-                    <button type="button" class="btn btn-secondary">Export Data</button>
+                    <button type="button" class="btn btn-secondary">Import</button>
+                    <button type="button" class="btn btn-info">Export</button>
                 </div>
 
                 <div class="text-center">
@@ -126,7 +126,9 @@ include 'server/db_connection.php';
         </div>
 
         <div class="mt-5">
-            <h3 class='text-center text-black'>List Of Students</h3>
+            <h3 class='pt-2 pb-2 mb-4 border-dark border-2 border-top border-bottom text-center text-black'>
+                List Of Students
+            </h3>
 
             <?php
             $stmt = $conn->prepare("SELECT * FROM students");
@@ -134,21 +136,30 @@ include 'server/db_connection.php';
             $rows = $stmt->fetchAll();
 
             if (count($rows) > 0) {
-                echo "<table class='table table-hover table-borderless'>";
-                echo "<tr class='table-info'>
+                echo "<table class='table table-lg table-light table-hover rounded shadow-sm'>";
+                echo "<tr class='table-dark text-center'>
                         <th>ID</th>
-                        <th>Full Name</th>
+                        <th>Name</th>
                         <th>Email</th>
                         <th>Phone</th>
                         <th>Date Of Birth</th>
                         <th>Gender</th>
                         <th>City</th>
-                        <th>Actions</th></tr>";
+                        <th></th><th></th>
+                    </tr>";
 
                 foreach ($rows as $row) {
-                    echo "<tr><td>".$row["id"]."</td><td>".$row["full_name"]."</td><td>".
-                    $row["email"]."</td><td>".$row["phone"]."</td><td>".$row["dob"]."</td><td>".
-                    $row["gender"]."</td><td>".$row["city"]."</td></tr>";
+                    echo "<tr class='text-center'>
+                            <td>".$row["id"]."</td>
+                            <td>".$row["full_name"]."</td>
+                            <td>".$row["email"]."</td>
+                            <td>".$row["phone"]."</td>
+                            <td>".$row["dob"]."</td>
+                            <td>".$row["gender"]."</td>
+                            <td>".$row["city"]."</td>
+                            <td><button class='btn btn-sm btn-warning'>EDIT</button>
+                            <td><button class='btn btn-sm btn-danger'>DELETE</button></td>
+                            </tr>";
                 }
                 echo "</table>";
             } else {
