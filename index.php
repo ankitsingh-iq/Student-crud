@@ -1,9 +1,13 @@
+<?php
+include 'server/db_connection.php';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Data Management UI</title>
+    <title>Student Data Management</title>
     <link rel="icon" href="assets/images/crud.png" type="image/x-icon">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="css/styles.css">
@@ -16,27 +20,30 @@
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label for="name" class="form-label">Full Name</label>
-                        <input type="text" class="form-control" id="name" name="fullName" placeholder="Enter Name" required>
+                        <input type="text" class="form-control" id="name" name="fullName" placeholder="Enter Name">
+                        <span class="error"> <?php echo $nameErr; ?> </span><br>
                     </div>
-    
+
                     <div class="col-md-4">
                         <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email" required>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email">
+                        <span class="error"> <?php echo $emailErr; ?> </span><br>
                     </div>
 
                     <div class="col-md-4">
                         <label for="phone" class="form-label">Phone</label>
-                        <input type="text" class="form-control" id="phone" name="phone" placeholder="Enter Phone" required>
+                        <input type="text" class="form-control" id="phone" name="phone" placeholder="Enter Phone">
+                        <span class="error"> <?php echo $phoneErr; ?> </span><br>
                     </div>
-        
+
                 </div><br>
 
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="dob" class="form-label">Date of Birth</label>
-                        <input type="date" class="form-control" id="dob" name="dob" required>
+                        <input type="date" class="form-control" id="dob" name="dob">
                     </div>
-                
+
                     <div class="col-md-6">
                         <label for="gender" class="form-label" id="gender">Gender</label><br>
 
@@ -48,26 +55,25 @@
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="gender" id="male" value="male">
                             <label class="form-check-label" for="male">Male</label>
-                        </div> 
+                        </div>
 
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="gender" id="other" value="other">
                             <label class="form-check-label" for="other">Other</label>
-                        </div> 
+                        </div>
                     </div><br>
 
                 <div class="row g-3">
                     <div class="col">
                         <label for="address" class="form-label">Address</label>
-                        <input class="form-control" id="address" name="address" style="width:600px;" placeholder="Enter Address" required>
+                        <input class="form-control" id="address" name="address" style="width:600px;" placeholder="Enter Address">
                     </div>
 
                     <div class="col">
                         <label for="pincode" class="form-label">Pincode</label>
-                        <input type="text" class="form-control" id="pincode" name="pincode" placeholder="Enter Pincode" required>
+                        <input type="text" class="form-control" id="pincode" name="pincode" placeholder="Enter Pincode">
                     </div>
                 </div>
-
 
                 <div class="row g-3">
                     <div class="col-md-4">
@@ -78,7 +84,7 @@
                             <option>USA</option>
                         </select>
                     </div>
-                    
+
                     <div class="col-md-4">
                         <label for="state" class="form-label">State</label>
                         <select class="form-select" id="state" name="state">
@@ -88,7 +94,7 @@
                             <option>Kerala</option>
                         </select>
                     </div>
-                    
+
                     <div class="col-md-4">
                         <label for="city" class="form-label">City</label>
                         <select class="form-select" id="city" name="city">
@@ -100,7 +106,7 @@
                         </select>
                     </div>
                 </div>
-        
+
                 <div class="mb-3">
                     <label for="document" class="form-label">Upload Document</label>
                     <input class="form-control" type="file" id="document" name="documents">
@@ -119,38 +125,36 @@
             </form>
         </div>
 
-        <!-- Table Section -->
         <div class="mt-5">
-            <h3>Sample Student Data List</h3>
-            <table class="table table-striped table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>#</th>
+            <h3 class='text-center text-black'>List Of Students</h3>
+
+            <?php
+            $stmt = $conn->prepare("SELECT * FROM students");
+            $stmt->execute();
+            $rows = $stmt->fetchAll();
+
+            if (count($rows) > 0) {
+                echo "<table class='table table-hover table-borderless'>";
+                echo "<tr class='table-info'>
+                        <th>ID</th>
                         <th>Full Name</th>
                         <th>Email</th>
                         <th>Phone</th>
                         <th>Date Of Birth</th>
                         <th>Gender</th>
                         <th>City</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>John Doe</td>
-                        <td>john.doe@example.com</td>
-                        <td>1234567890</td>
-                        <td>21-06-2003</td>
-                        <td>Male</td>
-                        <td>New York</td>
-                        <td>
-                            <button class="btn btn-warning btn-sm">Edit</button>
-                            <button class="btn btn-danger btn-sm">Delete</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                        <th>Actions</th></tr>";
+
+                foreach ($rows as $row) {
+                    echo "<tr><td>".$row["id"]."</td><td>".$row["full_name"]."</td><td>".
+                    $row["email"]."</td><td>".$row["phone"]."</td><td>".$row["dob"]."</td><td>".
+                    $row["gender"]."</td><td>".$row["city"]."</td></tr>";
+                }
+                echo "</table>";
+            } else {
+                echo "No records found.";
+            }
+            ?>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>

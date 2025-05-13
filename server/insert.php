@@ -1,11 +1,14 @@
-<?php 
+<?php
 include 'db_connection.php';
+
+$nameErr = $emailErr = $phoneErr = $dobErr = $genderErr = $addErr = $pinErr = $countryErr =
+$stateErr = $cityErr = "";
 
 $name = $_POST["fullName"];
 $email = $_POST["email"];
 $phone = $_POST["phone"];
 $dob = $_POST["dob"];
-$gender = $_POST["gender"]; 
+$gender = $_POST["gender"];
 $address = $_POST["address"];
 $pincode = $_POST["pincode"];
 $country = $_POST["country"];
@@ -13,14 +16,12 @@ $state = $_POST["state"];
 $city = $_POST["city"];
 $documents = $_POST["documents"];
 
-$requiredFields = [$name, $email, $phone, $dob, $gender, $address, $pincode, $country, $state, $city, $documents];
-
 try{
-
     if($_SERVER["REQUEST_METHOD"] == "POST") {
-        $stmt = $conn->prepare("INSERT INTO students(full_name, dob, email, phone, gender, address, 
-                                pincode, country, state, city, documents) VALUES (:fName, :dob,
-                                :email, :phone, :gender, :address, :pin, :country, :state, :city, :doc)");
+        $stmt = $conn->prepare("INSERT INTO students(full_name, dob, email, phone, gender,
+                                address,pincode, country, state, city, documents) VALUES
+                                (:fName, :dob, :email, :phone, :gender, :address, :pin, :country, 
+                                :state, :city, :doc)");
         $stmt->execute([
             ':fName' => $name,
             ':dob' => $dob,
@@ -36,11 +37,8 @@ try{
         ]);
 
         echo '<script>alert("New record inserted successfully!!!")</script>';
-    } else {
-        echo "error";
     }
-}
-catch(PDOException $e) {
-    echo $sql . "<br>" . $e->getMessage();
+} catch(PDOException $e) {
+    echo $e->getMessage();
 }
 ?>

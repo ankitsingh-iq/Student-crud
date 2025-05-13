@@ -22,3 +22,7 @@ body {
 #btnSubmit {
     padding: 10px 30px;
 }
+
+.error {
+    color: red;
+}
