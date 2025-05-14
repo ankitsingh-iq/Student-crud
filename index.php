@@ -30,18 +30,17 @@
 
         <!-- Personal Information Section -->
         <h4 class="section-title">Personal Information</h4>
-        <form id="studentForm" method="POST">
+        <form id="myform" method="POST" action="insert.php" enctype="multipart/form-data">
             <div class="form-row">
                 <div>
                     <label for="studentName" class="form-label">Full Name</label>
-                    <input type="text" class="form-control" id="studentName" name="full_name" placeholder="Enter Full Name">
+                    <input type="text" class="form-control " id="studentName" name="full_name" placeholder="Enter Full Name">
                 </div>
                 <div>
                     <label for="dob" class="form-label">Date of Birth</label>
-                    <input type="date" class="form-control" name="dob"id="dob">
+                    <input type="date" class="form-control" name="dob" id="dob">
                 </div>
             </div>
-            
 
             <div class="form-row">
                 <div>
@@ -53,115 +52,133 @@
                     <input type="text" class="form-control" id="phone" name="phone"placeholder="Enter Phone">
                 </div>
             </div>
-
+            <label for="phone" class="form-label">Choose Gender : </label></br>
             <div class="form-row">
-                <label for="phone" class="form-label">Choose Gender : </label>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="gender" name="gender" value="Female">
-                    <label class="form-check-label" for="inlineRadio1">Female</label>
-              
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="inlineRadioOptions"  id="gender" name="male" value="Male">
-                    <label class="form-check-label" for="inlineRadio2">Male</label>
-               
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="inlineRadioOptions"  id="gender" name="Other" value="Other">
+                     <label class="form-check-label" for="inlineRadio1">Female</label>
+                     <input class="form-check-input" type="radio" id="gender" name="gender" value="Female">
+
+                <div class="form-check form-check-inline">
+                  <label class="form-check-label" for="inlineRadio2">Male</label>
+                  <input class="form-check-input" type="radio"  id="gender" name="gender" value="Male">
+
+                <div class="form-check form-check-inline">
                     <label class="form-check-label" for="inlineRadio3">Other</label>
-                  </div>
-                  </div>
-                  </div>
+                    <input class="form-check-input" type="radio"  id="gender" name="gender" value="Other">
+                </div>
+                </div>
+                </div>
             </div>
 
-            <!-- Address Information Section -->
             <h4 class="section-title">Address Information</h4>
             <div class="form-row">
                 <div>
                     <label for="address" class="form-label">Address</label>
-                    <input type="text" class="form-control" id="address" name= "address"placeholder="Enter Address">
+                    <input type="text" class="form-control" id="address" name="address" placeholder="Enter Address">
                 </div>
                 <div>
                     <label for="pincode" class="form-label">Pincode</label>
-                    <input type="text" class="form-control" id="pincode" name="pincode"placeholder="Enter Pincode">
+                    <input type="text" class="form-control" id="pincode" name="pincode" placeholder="Enter Pincode">
                 </div>
             </div>
-
-            <div class="form-row">
-                <div>
+            <div class="row mt-3">
+                <div class="col-md-4">
                     <label for="country" class="form-label">Country</label>
-                    <select class="form-select" id="country" name="country">
-                        <option>Select Country</option>
-                        <option>India</option>
-                        <option>USA</option>
+                    <select class="form-select" name="country" id="country">
+                        <option value="">Select Country</option>
+                        <option value="India">India</option>
+                        <option value="USA">USA</option>
                     </select>
                 </div>
-                <div>
+
+                <div class="col-md-4">
                     <label for="state" class="form-label">State</label>
-                    <select class="form-select" id="state"  name="state">
-                        <option>Gujarat</option>
-                        <option>Maharstra</option>
-                        <option>Rajasthan</option> 
-                        <option>Telangana</option> 
-                   
-                       
-                       
+                    <select class="form-select" name="state" id="state">
+                        <option value="">Select State</option>
+                        <option value="Gujarat">Gujarat</option>
+                        <option value="Maharashtra">Maharashtra</option>
+                        <option value="Rajasthan">Rajasthan</option>
+                        <option value="Telangana">Telangana</option>
                     </select>
                 </div>
-                <div>
+
+                <div class="col-md-4">
                     <label for="city" class="form-label">City</label>
-                    <select class="form-select" id="city" name="city">
-                        <option>Select City</option>
-                        <option>Ahmedabad</option>
-                        <option>Surat</option>
-                        <option>Rajkot</option>
-                        <option>Delhi</option>
-                        <option>Jaipur</option>
+                    <select class="form-select" name="city" id="city">
+                        <option value="">Select City</option>
+                        <option value="Ahmedabad">Ahmedabad</option>
+                        <option value="Surat">Surat</option>
+                        <option value="Rajkot">Rajkot</option>
+                        <option value="Delhi">Delhi</option>
+                        <option value="Jaipur">Jaipur</option>
                     </select>
                 </div>
             </div>
-
-            <!-- Document Upload Section -->
             <h4 class="section-title">Document Upload</h4>
             <div class="mb-3">
                 <label for="documents" class="form-label">Upload Documents</label>
-                <input class="form-control" type="file" id="documents" id="documents" multiple>
+                <input class="form-control" type="file" id="documents" name="documents[]" multiple>
             </div>
-
-        
-            <button type="submit" class="btn btn-primary" name="submit" value="submit">submit</button>
-        </form>
-
-        <!-- Table Section -->
-        <div class="mt-5">
-            <h3>Sample Student Data List</h3>
-            <table class="table table-striped table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>#</th>
-                        <th>Full Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>City</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>John Doe</td>
-                        <td>john.doe@example.com</td>
-                        <td>1234567890</td>
-                        <td>New York</td>
-                        <td>
-                            <button class="btn btn-success btn-sm">View</button>
-                            <button class="btn btn-warning btn-sm">Edit</button>
-                            <button class="btn btn-danger btn-sm">Delete</button>
-                            <button class="btn btn-info btn-sm">PDF</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <input type="submit" class="btn btn-primary" name="submit"></button>
         </div>
+        </form>
+        <div class="container">
+        <?php
+        echo "<h2 style='text-align:center;'>All Students Data</h2>";
+        try {
+            $servername = "localhost";
+            $username = "root";
+            $pass = "Ami@2211!";
+            $pdo = new PDO("mysql:host=$servername;dbname=student_management", $username, $pass);
+            $sql = "SELECT * FROM students";
+            $result = $pdo->query($sql);
+            $rows = $result->fetchAll();
+
+            echo "<table class='table table-hover table-striped'>";
+             echo "<tr>
+                <th>FullName</th>
+                <th>DOB</th>
+                <th>Email</th>
+                <th>Phoneno</th>
+                <th>Gender</th>
+                <th>address</th>
+                <th>City</th>
+                <th>Documents</th>
+                <th>Action</th>
+
+             </tr>";
+
+             foreach ($rows as $row){
+                echo "<tr>";
+                echo "<td>".$row["full_name"]."</td>";
+                echo "<td>".$row["dob"]."</td>";
+                echo "<td>".$row["email"]."</td>";
+                echo "<td>".$row["phone"]."</td>";
+                echo "<td>".$row["gender"]."</td>";
+                echo "<td>".$row["address"]."</td>";
+                echo "<td>".$row["city"]."</td>";
+                $images = explode(',', $row['documents']);
+                echo "<td>";
+                foreach ($images as $img):
+                    $img = trim($img);
+                    if ($img):
+                ?>
+                <img src="media/<?= htmlspecialchars($img)?>" width="40" height="20" style="margin:5px;" />
+                <?php endif; endforeach;?>
+               <?php echo "</td><td><a href=\"delete_formdata.php?id=$row[c_id]\">Edit</a></td>";
+                echo "</tr>";
+                // <td><button class='btn btn-secondary m-1' id='$row[c_id]'>Edit</button><button class='btn btn-secondary''>Delete</button></td></tr>" ;
+            }
+         echo "</table>";
+
+        } catch (PDOException $e){
+            echo "Database error: " . $e->getMessage();
+        }
+            ?>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+ <script src="form_validation.js"></script>
 </body>
 </html>
