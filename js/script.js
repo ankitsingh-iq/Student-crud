@@ -54,8 +54,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
         }
         else {
-            // console.log('update');
-            // console.log(formData);
             formData.append('id', form.getAttribute('action'));
             console.log(formData.get('id'));
             fetch('server/edit.php', {
@@ -184,7 +182,46 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     });
+    document.querySelectorAll('.PDF-generate').forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+            const studentId = this.getAttribute('data-id');
+            const formData = new FormData();
+            formData.append('id', studentId);
+            fetch('server/generatePDF.php', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const byteCharacters = atob(data.pdf);
+                        const byteNumbers = new Array(byteCharacters.length).fill().map((_, i) => byteCharacters.charCodeAt(i));
+                        const byteArray = new Uint8Array(byteNumbers);
+                        const blob = new Blob([byteArray], { type: 'application/pdf' });
+                        const blobUrl = URL.createObjectURL(blob);
+                        window.open(blobUrl, '_blank');
 
+                        // Optional: trigger save on user action
+                        document.getElementById('downloadBtn').onclick = function () {
+                            const formData = new FormData();
+                            formData.append('pdf', data.pdf);
+                            formData.append('filename', 'student_' + studentId + '.pdf');
+
+                            fetch('server/savePDF.php', {
+                                method: 'POST',
+                                body: formData
+                            }).then(res => res.json()).then(resp => {
+                                Swal.fire('Saved!', resp.message, 'success');
+                            });
+                        };
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showErrorAlert('Error!', 'Unexpected error.');
+                });
+        });
+    });
 
 });
 

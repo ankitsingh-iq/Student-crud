@@ -17,7 +17,8 @@ if ($result->num_rows > 0) {
                 <!-- <button class='btn btn-success btn-sm'>View</button> -->
                 <button data-id=" . $row['id'] . " class='btn btn-warning btn-sm edit-btn'>Edit</button>
                 <button data-id=" . $row['id'] . " class='btn btn-danger btn-sm delete-btn'>Delete</button>
-                <button data-id=" . $row['id'] . " class='btn btn-info btn-sm PDF-gen'>PDF</button>
+                <button data-id=" . $row['id'] . " class='btn btn-info btn-sm PDF-generate'>PDF</button>
+                <button data-id=" . $row['id'] . " class='btn btn-info btn-sm PDF-download' id='downloadBtn'>Download</button>
             </td>
         </tr>";
     }
