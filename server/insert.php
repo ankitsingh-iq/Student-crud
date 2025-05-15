@@ -31,11 +31,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     //Phone Validation
     $inputPhone = test_input($_POST["phone"]);
     if(empty($inputPhone)) {
-        $phoneErr = "PhoneNo is required.";
+        $phoneErr = "Phone Number is required.";
     } else {
         $phone = $inputPhone;
-        if(!preg_match("/^[0-9]{11}$/", $phone)) {
-            $phoneErr = "Phone number contain only digits.";
+        if(!preg_match("/^[0-9]{10}$/", $phone)) {
+            $phoneErr = "Phone Number contain only 10 digits.";
         }
     }
 
@@ -140,49 +140,22 @@ function test_input($data) {
 <head>
     <meta charset="UTF-8">
     <title>Create Record</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin-top: 50px;
-        }
-
-        .card {
-            padding: 40px;
-        }
-
-        #gender {
-            margin-left: 70px;
-        }
-
-        #gFemale {
-            margin-left: 70px;
-        }
-
-        #btnSubmit {
-            padding: 10px 30px;
-        }
-
-        .error {
-            color: red;
-        }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../css/styles.css">
 </head>
 
 <body>
 <div class="container">
     <div class="card shadow-lg">
         <h2 class="pt-2 pb-2 mb-4 border-dark border-bottom text-center text-black border-2">Student Data Management</h2>
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST" enctype="multipart/form-data">
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" class="needs-validation" method="POST" enctype="multipart/form-data" novalidate>
             <div class="row g-3">
-                <div class="col-md-4">
+                <div class="col-md-4 has-validation">
                     <label for="name" class="form-label">Full Name</label>
-                    <input type="text" class="form-control" id="name" name="fullName" placeholder="Enter Name">
-                    <span class="error"> <?php echo $nameErr; ?> </span><br>
+                    <input type="text" class="form-control
+                        <?php echo (!empty($nameErr)) ? 'is-invalid' : ''; ?>" value="<?php echo $name; ?>"
+                        id="name" name="fullName" placeholder="Enter Name">
+                    <div class="invalid-feedback"> <?php echo $nameErr; ?> </div><br>
                 </div>
 
                 <div class="col-md-4">
@@ -246,10 +219,8 @@ function test_input($data) {
             <div class="row g-3">
                 <div class="col-md-4">
                     <label for="country" class="form-label">Country</label>
-                    <select class="form-select" id="country" name="country">
-                        <option>Select Country</option>
-                        <option>India</option>
-                        <option>USA</option>
+                    <select class="form-select" id="country" name="country" onfocus="selectFun()">
+                        <option value="" selected="selected">Select Country</option>
                     </select>
                     <span class="error"> <?php echo $countryErr; ?> </span>
                 </div>
@@ -257,13 +228,7 @@ function test_input($data) {
                 <div class="col-md-4">
                     <label for="state" class="form-label">State</label>
                     <select class="form-select" id="state" name="state">
-                        <option value="">Select State</option>
-                        <option value="Gujarat"
-                            <?php if (isset($state) && $state=="Gujarat") echo "selected"; ?>>Gujarat</option>
-                        <option value="Maharashtra"
-                            <?php if (isset($state) && $state=="Maharashtra") echo "selected"; ?>>Maharashtra</option>
-                        <option value="Kerala"
-                            <?php if (isset($state) && $state=="Kerala") echo "selected"; ?>>Kerala</option>
+                        <option value="" selected="selected">Select State</option>
                     </select>
                     <span class="error"> <?php echo $stateErr; ?> </span>
                 </div>
@@ -271,11 +236,7 @@ function test_input($data) {
                 <div class="col-md-4">
                     <label for="city" class="form-label">City</label>
                     <select class="form-select" id="city" name="city">
-                        <option>Select City</option>
-                        <option>Ahmedabad</option>
-                        <option>Gandhinagar</option>
-                        <option>Vadodara</option>
-                        <option>Pune</option>
+                        <option value="" selected="selected">Select City</option>
                     </select>
                     <span class="error"> <?php echo $cityErr; ?> </span>
                 </div>
@@ -286,19 +247,14 @@ function test_input($data) {
                 <input class="form-control" type="file" id="document" name="documents">
             </div>
 
-            <!-- Import/Export Section -->
-            <h4 class="section-title">Data Management</h4>
-            <div class="mb-3">
-                <button type="button" class="btn btn-secondary">Import</button>
-                <button type="button" class="btn btn-info">Export</button>
-            </div>
-
             <div class="text-center">
                 <button type="submit" class="btn btn-primary" id="btnSubmit">Submit</button>
             </div>
         </form>
     </div>
 </div>
+<script src="../js/script.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 </body>
 </html>
