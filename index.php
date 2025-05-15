@@ -40,6 +40,9 @@ require_once __DIR__ . '/server/config/config.php';
       <!-- hidden value for Edit -->
       <input type="hidden" name="id" value="">
 
+      <!-- hidden value for Edit document uplord -->
+      <input type="hidden" name="existing_documents" id="existingDocumentsInput">
+
       <!-- Full Name and Date of Birth -->
       <div class="form-row">
         <div>
@@ -184,17 +187,16 @@ require_once __DIR__ . '/server/config/config.php';
       </div>
 
       <!-- Document Upload Section -->
-      <!-- <h4 class="section-title">Document Upload</h4>
+      <h4 class="section-title">Document Upload</h4>
       <div class="mb-3">
         <label for="documents" class="form-label">Upload Documents</label>
         <input name="documents[]" class="form-control" type="file" id="documents" multiple required />
         <div class="invalid-feedback">
           Please upload at least one document.
         </div>
-      </div> -->
-
+      </div>
       <!-- Preview Section -->
-      <!-- <div id="imagePreviewContainer" class="d-flex gap-3 mt-3"></div> -->
+      <div id="imagePreviewContainer" class="d-flex gap-3 mt-3"></div>
       <button type="submit" class="btn btn-primary">Save</button>
     </form>
 
@@ -345,8 +347,8 @@ require_once __DIR__ . '/server/config/config.php';
 
   <!-- Custom JavaScript -->
   <script src="js/script.js"></script>
-  <!-- <script src="js/fetch-student-list.js"></script> -->
-  <!-- <script src="js/multiple-file-priview.js"></script> -->
+  <script src="js/fetch-student-list.js"></script>
+  <script src="js/multiple-file-priview.js"></script>
 </body>
 
 </html>

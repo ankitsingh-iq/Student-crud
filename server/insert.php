@@ -14,8 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $country = $_POST['country'];
     $city = $_POST['city'];
     $state = $_POST['state'];
-    // $documents = $_FILES['documents'] ;]
-    $documents="";
+    $documents = $_FILES['documents'];
     $dbdocuments = [];
 
 
@@ -40,53 +39,63 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
 
-    // if (isset($_FILES['documents']) && count($_FILES['documents']['name']) > 0) {
-    //     // echo('<pre>');
-    //     // print_r($_FILES['documents']);  
-    //     // echo('</pre>');
-    //     $uploadDir = __DIR__ . '/../uploads/';
-    //     // Loop through all uploaded files
-    //     for ($i = 0; $i < count($_FILES['documents']['name']); $i++) {
-    //         $fileName = $_FILES['documents']['name'][$i];      // Original file name
-    //         $fileTmpName = $_FILES['documents']['tmp_name'][$i]; // Temporary path
-    //         $fileError = $_FILES['documents']['error'][$i];      // Error code
+    if (isset($_FILES['documents']) && count($_FILES['documents']['name']) > 0) {
+        // echo('<pre>');
+        // print_r($_FILES['documents']);  
+        // echo('</pre>');
+        $uploadDir = __DIR__ . '/../uploads/';
+        // Loop through all uploaded files
+        $allowedTypes = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
+        for ($i = 0; $i < count($_FILES['documents']['name']); $i++) {
+            $fileName = $_FILES['documents']['name'][$i];
+            $fileTmpName = $_FILES['documents']['tmp_name'][$i];
+            $fileError = $_FILES['documents']['error'][$i];
+            $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
-    //         // Check if the file was successfully uploaded
-    //         if ($fileError === 0) {
-    //             $fileDestination = $uploadDir . basename($fileName);
-    //             $dbdocuments[] = $fileDestination;
+            if (!in_array($fileExt, $allowedTypes)) {
+                http_response_code(400);
+                echo json_encode([
+                    "status" => "error",
+                    "errors" => ["file" => "Invalid file type: " . $fileName]
+                ]);
+                exit;
+            }
 
-    //             if (!move_uploaded_file($fileTmpName, $fileDestination)) {
-    //                 http_response_code(500);
-    //                 echo json_encode([
-    //                     "status" => "error",
-    //                     "errors" => ["file" => "Failed to upload file: " . $fileName]
-    //                 ]);
-    //                 exit;
-    //             }
-    //         } else {
-    //             http_response_code(500);
-    //             echo json_encode([
-    //                 "status" => "error",
-    //                 "errors" => ["file" => "Error uploading file: " . $fileName]
-    //             ]);
-    //             exit;
-    //         }
-    //     }
-    // } else {
-    //     http_response_code(500);
-    //     echo json_encode([
-    //         "status" => "error",
-    //         "errors" => ["file" => "No File Uplord"]
-    //     ]);
-    //     exit;
-    // }
+            if ($fileError === 0) {
+                $uniqueName = uniqid() . '_' . basename($fileName);
+                $fileDestination = $uploadDir . $uniqueName;
+                $dbdocuments[] = 'uploads/' . $uniqueName; // Store relative path
+
+                if (!move_uploaded_file($fileTmpName, $fileDestination)) {
+                    http_response_code(500);
+                    echo json_encode([
+                        "status" => "error",
+                        "errors" => ["file" => "Failed to upload file: " . $fileName]
+                    ]);
+                    exit;
+                }
+            } else {
+                http_response_code(500);
+                echo json_encode([
+                    "status" => "error",
+                    "errors" => ["file" => "Error uploading file: " . $fileName]
+                ]);
+                exit;
+            }
+        }
+    } else {
+        http_response_code(500);
+        echo json_encode([
+            "status" => "error",
+            "errors" => ["file" => "No File Uplord"]
+        ]);
+        exit;
+    }
 
 
 
     // Step 2: Convert paths array to JSON
-    // $documentPaths = json_encode($dbdocuments) ;
-    $dbdocuments = [];
+    $documentPaths = json_encode($dbdocuments);
 
     try {
         $stmt = $conn->prepare("INSERT INTO `students` (`full_name`, `dob`, `email`, `phone`, `gender`, `address`, `pincode`, `country`, `state`, `city`, `documents`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
