@@ -113,7 +113,7 @@ if(isset($_SESSION['status_msg'])) {
         </div>
     </div>
 
-<!-- Show/hide CSV upload form -->
+
 <script>
     function formToggle(ID) {
         var element = document.getElementById(ID);
