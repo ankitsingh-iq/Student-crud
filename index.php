@@ -7,44 +7,19 @@
     <title>Student Data Management UI</title>
     <link rel="icon" href="assets/images/working.png" type="image/x-icon" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" />
-    <style>
-        .container {
-            margin: auto;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-evenly;
-        }
-
-        .section-title {
-            margin-top: 40px;
-            margin-bottom: 20px;
-            font-weight: bold;
-            border-bottom: 2px solid #333;
-            padding-bottom: 5px;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .form-row>div {
-            flex: 1;
-        }
-    </style>
+    <link rel="stylesheet" href="css/styles.css" />
 </head>
 
 <body>
     <div style="text-align: center;">
-        <h2 class="mb-2">Student Data Management</h2>
-        <p id="Message"></p>
+        <h2 class="mt-2">Student Data Management</h2>
     </div>
     <div class="container">
         <div>
             <!-- Personal Information Section -->
-            <h4 class="section-title">Personal Information</h4>
+            <div id="resultContainer"></div>
             <form id="studentForm" method="POST" action="">
+                <h4 class="section-title">Personal Information</h4>
                 <div class="form-row">
                     <div>
                         <label for="studentName" class="form-label">Full Name</label>
@@ -108,24 +83,24 @@
                 <div class="form-row">
                     <div>
                         <label for="country" class="form-label">Country</label>
-                        <select class="form-select" id="country" name="country">
-                            <option selected disabled>Select Country</option>
-                            <option>India</option>
-                            <option>USA</option>
+                        <select id="country" name="country" class="form-select" onchange="getStates()">
+                            <option value="">Select Country</option>
+                            <option value="India">India</option>
+                            <option value="USA">USA</option>
                         </select>
                         <p class="country-error"></p>
                     </div>
                     <div>
                         <label for="state" class="form-label">State</label>
-                        <select class="form-select" id="state" name="state">
-                            <option>Select State</option>
+                        <select id="state" name="state"  class="form-select" onchange="getCities()" disabled>
+                            <option value="">Select State</option>
                         </select>
                         <p class="state-error"></p>
                     </div>
                     <div>
                         <label for="city" class="form-label">City</label>
-                        <select class="form-select" id="city" name="city">
-                            <option>Select City</option>
+                        <select id="city" name="city"  class="form-select" disabled >
+                            <option value="">Select City</option>
                         </select>
                         <p class="city-error"></p>
                     </div>
@@ -133,17 +108,18 @@
 
                 <!-- Document Upload Section -->
                 <h4 class="section-title">Document Upload</h4>
+                <div class="imagePreview"></div>
                 <div class="mb-3">
                     <label for="documents" class="form-label">Upload Documents</label>
-                    <input class="form-control" type="file" id="documents" multiple />
+                    <input class="form-control" type="file" id="documents" multiple onchange="updateDocs()"/>
                 </div>
 
-                <!-- Import/Export Section -->
+                <!-- Import/Export Section
                 <h4 class="section-title">Data Management</h4>
                 <div class="mb-3">
                     <button type="button" class="btn btn-secondary">Import Data</button>
                     <button type="button" class="btn btn-secondary">Export Data</button>
-                </div>
+                </div> -->
 
                 <button type="submit" class="btn btn-primary">Save</button>
             </form>

@@ -1,20 +1,55 @@
 <?php
-$pdfData = $_POST['pdf'] ?? '';
-$filename = $_POST['filename'] ?? 'document'.time().'.pdf';
+// This script generates a PDF for a student based on their ID.
+// it gets content from the client-side and generates a PDF file using Dompdf.
+// It then returns a response message.
+require_once '../vendor/autoload.php';
+use Dompdf\Dompdf;
 
-if (!$pdfData) {
-    echo json_encode(['status' => 'error', 'message' => 'No PDF data received.']);
+// Check for incoming data
+if (!isset($_POST['pdfContent']) || !isset($_POST['id'])) {
+    echo json_encode(['status' => 'error', 'message' => 'Required data missing.']);
     exit;
 }
 
-$pdfBinary = base64_decode($pdfData);
-$path = __DIR__ . "/../exports/" . basename($filename);
-if (!file_exists(__DIR__ . '/../exports')) {
-    mkdir(__DIR__ . '/../exports', 0777, true);
+// Get the PDF content and ID from POST request
+$pdfContent = $_POST['pdfContent'];
+$id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+
+// Validate the ID and PDF content
+if (!$id || empty($pdfContent)) {
+    echo json_encode(['status' => 'error', 'message' => 'Invalid input provided.']);
+    exit;
 }
 
-if (file_put_contents($path, $pdfBinary)) {
-    echo json_encode(['status' => 'success', 'message' => 'PDF saved successfully.']);
-} else {
-    echo json_encode(['status' => 'error', 'message' => 'Failed to save PDF.']);
+try {
+    // Initialize Dompdf
+    $dompdf = new Dompdf();
+    $dompdf->loadHtml($pdfContent);
+    $dompdf->setPaper('A4', 'portrait');
+    $dompdf->render();
+
+    // Save PDF to exports folder
+    $output = $dompdf->output();
+    $filename = "student_$id.pdf";
+    $filepath = __DIR__ . '/../exports/' . $filename;
+
+    // Ensure exports directory exists
+    if (!file_exists(__DIR__ . '/../exports')) {
+        mkdir(__DIR__ . '/../exports', 0777, true);
+    }
+
+    // Save the PDF file
+    file_put_contents($filepath, $output);
+
+
+   // send the response back to the client
+    echo json_encode([
+        'status' => 'success',
+        'message' => 'PDF saved successfully.',
+        'filepath' => 'exports/' . $filename // Optional, to use for download/view later
+    ]);
+} catch (Exception $e) {
+    // Handle any errors that occur during PDF generation
+    echo json_encode(['status' => 'error', 'message' => 'PDF generation failed.', 'error' => $e->getMessage()]);
 }
+?>

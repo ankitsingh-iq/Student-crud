@@ -2,27 +2,26 @@ document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('studentForm');
     const params = new URLSearchParams(window.location.search);
     const messageSuccess = params.get('success');
-    console.log(messageSuccess);
 
     if (messageSuccess) {
         // Show success message
         showSuccessAlert('Success!', messageSuccess);
         // Clear the URL parameters
         const cleanURL = window.location.origin + window.location.pathname;
+        console.log(cleanURL);
         window.history.replaceState({}, document.title, cleanURL);
     }
 
     form.addEventListener('submit', function (e) {
         e.preventDefault();
 
-        const formData = new FormData(form);
+        const formData = getFormData();
         document.querySelectorAll('.text-danger').forEach(el => {
             el.innerText = '';
             el.style.display = 'none';
         });
-        // console.log(form.attributes['action'].value=== '');
 
-        if (form.attributes['action'].value === '') {
+        if (form.attributes['data-update-id'].value === '') {
             fetch('server/insert.php', {
                 method: 'POST',
                 body: formData
@@ -31,6 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(data => {
                     if (data.status === 'success') {
                         // console.log(data.data);
+                        resetForm();
                         window.location.href = window.location.pathname + '?success=' + encodeURIComponent(data.message);
                     } else {
                         console.log(data.message);
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
         }
         else {
-            formData.append('id', form.getAttribute('action'));
+            formData.append('id', form.getAttribute('data-update-id'));
             console.log(formData.get('id'));
             fetch('server/edit.php', {
                 method: 'POST',
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        form.setAttribute('action', '');
+                        resetForm();
                         window.location.href = window.location.pathname + '?success=' + encodeURIComponent(data.message);
                     } else {
                         console.log(data.message);
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (data.status === 'success') {
                         const student = data.data;
                         console.log(student);
-                        // // Populate the form with student data
+                        // Populate the form with student data
                         document.getElementById('studentName').value = student.full_name;
                         document.getElementById('dob').value = student.dob;
                         document.getElementById('email').value = student.email;
@@ -117,12 +117,19 @@ document.addEventListener('DOMContentLoaded', function () {
                         document.getElementById('address').value = student.address;
                         document.getElementById('pincode').value = student.pincode;
                         document.getElementById('country').value = student.country;
+                        // Reset state and city dropdowns
+                        getStates();
                         document.getElementById('state').value = student.state;
-                        document.getElementById('city').value = student.city;
-                        // Show the form
-                        document.getElementById('studentForm').scrollIntoView({ behavior: 'smooth' });
-                        // Change the form action to update
-                        form.setAttribute('action', studentId);
+                        setTimeout(() => {
+                            document.getElementById('state').value = student.state;
+                            getCities();
+
+                            setTimeout(() => {
+                                document.getElementById('city').value = student.city;
+                            }, 100);
+                        }, 100);
+                        // Change the form attribute to the student ID
+                        form.setAttribute('data-update-id', studentId);
                         // Change the button text to "Update"
                         const submitButton = document.querySelector('button[type="submit"]');
                         if (submitButton) {
@@ -194,35 +201,58 @@ document.addEventListener('DOMContentLoaded', function () {
             }).then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        const byteCharacters = atob(data.pdf);
-                        const byteNumbers = new Array(byteCharacters.length).fill().map((_, i) => byteCharacters.charCodeAt(i));
-                        const byteArray = new Uint8Array(byteNumbers);
-                        const blob = new Blob([byteArray], { type: 'application/pdf' });
-                        const blobUrl = URL.createObjectURL(blob);
-                        window.open(blobUrl, '_blank');
+                        const PDFview = document.getElementById('resultContainer');
+                        PDFview.innerHTML = data.data;
+                        // Show the result container
+                        PDFview.style.display = 'block';
+                        PDFview.scrollIntoView({ behavior: 'smooth' });
+                        // Hide the form
+                        form.style.display = 'none';
+                        document.getElementById("downloadBtn").addEventListener("click", function () {
 
-                        // Optional: trigger save on user action
-                        document.getElementById('downloadBtn').onclick = function () {
-                            const formData = new FormData();
-                            formData.append('pdf', data.pdf);
-                            formData.append('filename', 'student_' + studentId + '.pdf');
-
+                            // clearing buttons from pdf view
+                            document.getElementById("btn-g").style.display = 'none';
+                            var pdfContent = document.getElementById("resultContainer").innerHTML;
+                            const formdata = new FormData();
+                            formdata.append('pdfContent', pdfContent);
+                            formdata.append('id', studentId);
+                            // Send the PDF content to the server for saving
                             fetch('server/savePDF.php', {
                                 method: 'POST',
-                                body: formData
-                            }).then(res => res.json()).then(resp => {
-                                Swal.fire('Saved!', resp.message, 'success');
-                            });
-                        };
+                                body: formdata,
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.status === 'success') {
+                                        showSuccessAlert('Success!', data.message);
+                                    } else {
+                                        showErrorAlert('Error!', data.message);
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    showErrorAlert('Error!', 'Unexpected error.');
+                                });
+                            // Hide the PDF view and show the form again
+                            PDFview.style.display = 'none';
+                            PDFview.innerHTML = '';
+                            form.style.display = 'block';
+                            form.reset();
+                        });
                     }
-                })
+                    else {
+                        showErrorAlert('Error!', data.message);
+                        // Show error messages
+                        console.log(data.errors);
+                    }
+                }
+                )
                 .catch(error => {
                     console.error('Error:', error);
                     showErrorAlert('Error!', 'Unexpected error.');
                 });
         });
     });
-
 });
 
 function showSuccessAlert(title, message) {
@@ -243,4 +273,111 @@ function showConfirmationDialog(title, text, confirmText = 'Yes, do it!') {
         cancelButtonColor: '#3085d6',
         confirmButtonText: confirmText,
     });
+}
+// Function to handle country selection and populate states
+function getStates() {
+    const country = document.getElementById('country').value;
+    const stateSelect = document.getElementById('state');
+    const citySelect = document.getElementById('city');
+
+    // Reset state dropdown
+    stateSelect.innerHTML = '<option value="">Select State</option>';
+    stateSelect.disabled = false;
+
+    // Reset city dropdown
+    citySelect.innerHTML = '<option value="">Select City</option>';
+    citySelect.disabled = true;
+
+    const states = getStatesByCountry(country);
+
+    if (states.length > 0) {
+        states.forEach(state => {
+            const option = document.createElement('option');
+            option.text = state;
+            option.value = state;
+            stateSelect.add(option);
+        });
+    } else {
+        stateSelect.disabled = true;
+    }
+
+    console.log("Selected country:", country);
+    console.log("Available states:", states);
+}
+
+// Function to return states based on selected country
+function getStatesByCountry(country) {
+    const states = {
+        'India': ['Andhra Pradesh', 'Arunachal Pradesh', 'Assam',],
+        'USA': ['Alabama', 'Alaska', 'Arizona']
+    };
+    return states[country] || [];
+}
+
+// Function to handle state selection and populate cities
+function getCities() {
+    const state = document.getElementById('state').value;
+    const citySelect = document.getElementById('city');
+
+    citySelect.innerHTML = '<option value="">Select City</option>';
+    const cities = getCitiesByState(state);
+
+    if (cities.length > 0) {
+        cities.forEach(city => {
+            const option = document.createElement('option');
+            option.text = city;
+            option.value = city;
+            citySelect.add(option);
+        });
+
+        citySelect.disabled = false;
+        citySelect.style.display = 'block';
+    } else {
+        citySelect.disabled = true;
+        citySelect.style.display = 'none';
+    }
+}
+
+// Function to return cities based on selected state
+function getCitiesByState(state) {
+    const cities = {
+        'Andhra Pradesh': ['Visakhapatnam', 'Vijayawada', 'Guntur', 'Nellore', 'Tirupati'],
+        'Arunachal Pradesh': ['Itanagar', 'Naharlagun', 'Pasighat', 'Tezpur'],
+        'Assam': ['Guwahati', 'Silchar', 'Dibrugarh', 'Jorhat'],
+        'Alabama': ['Birmingham', 'Montgomery', 'Huntsville', 'Mobile'],
+        'Alaska': ['Anchorage', 'Fairbanks', 'Juneau', 'Sitka'],
+        'Arizona': ['Phoenix', 'Tucson', 'Mesa', 'Chandler'],
+        // Add more states and their cities as needed
+    };
+    return cities[state] || [];
+}
+
+// Utility functions to get selected values
+function getCountry() {
+    return document.getElementById('country').value;
+}
+function getState() {
+    return document.getElementById('state').value;
+}
+function getCity() {
+    return document.getElementById('city').value;
+}
+
+// Utility function to get form data
+function getFormData() {
+    const form = document.getElementById('studentForm');
+    const formData = new FormData(form);
+    return formData;
+}
+// Utility function to reset form
+function resetForm() {
+    const form = document.getElementById('studentForm');
+    form.reset();
+    form.setAttribute('data-update-id', '');
+    const submitButton = document.querySelector('button[type="submit"]');
+    if (submitButton) {
+        submitButton.innerText = 'Save';
+        submitButton.classList.remove('btn-warning');
+        submitButton.classList.add('btn-primary');
+    }
 }

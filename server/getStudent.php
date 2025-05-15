@@ -1,12 +1,20 @@
 <?php
+// this file is used to get student data
+// it gets id from the client and fetches the data from the database.
+// It then returns data and a response message.
 
-require 'db.php';
+// Include the database connection file
+require_once 'db.php';
+
+header('Content-Type: application/json');
+
 // Check if the ID is provided
-$id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
-if ($id === false) {
-    echo json_encode(['status' => 'error', 'message' => 'Invalid ID provided.']);
+$id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+if ($id <= 0) {
+    echo json_encode(['status' => 'error', 'message' => 'Invalid student ID.']);
     exit;
 }
+
 // Prepare the SQL statement
 $sql = "SELECT * FROM students WHERE id = ?";
 $stmt = $conn->prepare($sql);

@@ -1,5 +1,8 @@
-
 <?php
+// this file is used to edit student data
+// it gets content from the form submission and updates the data in the database.
+// It then returns a response message.
+// Include the database connection file
 require 'db.php';
 
 // Check if the ID is provided

@@ -1,9 +1,9 @@
 <?php
+// This script generates a PDF for a student based on their ID.
+// It fetches the student data from the database and formats it into HTML.
+// The HTML is then returned as a JSON response, which can be used to generate the PDF.
+// Include the database connection file
 require 'db.php';
-require __DIR__ .'/../vendor/autoload.php';
-
-use Dompdf\Dompdf;
-use Dompdf\Options;
 
 // Validate student ID
 $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
@@ -19,28 +19,21 @@ $stmt->bind_param("i", $id);
 $stmt->execute();
 $result = $stmt->get_result();
 
+// Check if the student data is empty
 if ($result->num_rows === 0) {
     echo json_encode(['status' => 'error', 'message' => 'No student found with the provided ID.']);
     exit;
 }
-
+// Fetch the student data
 $student = $result->fetch_assoc();
 
 $stmt->close();
 $conn->close();
 
-// Set up Dompdf options
-$options = new Options();
-$options->set('defaultFont', 'Courier');
-$options->set('isHtml5ParserEnabled', true);
-$options->set('isRemoteEnabled', true);
-
-$dompdf = new Dompdf($options);
-
 // Simple HTML template for the PDF
 $html = '
     <h2>Student Details</h2>
-    <table border="1" cellpadding="10" cellspacing="0">
+    <table class="pdfTable" border="1" cellpadding="10" cellspacing="0">
         <tr><th>Full Name</th><td>' . htmlspecialchars($student['full_name']) . '</td></tr>
         <tr><th>DOB</th><td>' . htmlspecialchars($student['dob']) . '</td></tr>
         <tr><th>Email</th><td>' . htmlspecialchars($student['email']) . '</td></tr>
@@ -52,9 +45,10 @@ $html = '
         <tr><th>State</th><td>' . htmlspecialchars($student['state']) . '</td></tr>
         <tr><th>City</th><td>' . htmlspecialchars($student['city']) . '</td></tr>
     </table>
-    <button style="margin-top: 20px; padding: 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">
-        download
-    </button>
+    <div id="btn-g">
+    <button class="btn btn-info btn-sm PDF-download" id="downloadBtn">Download</button>
+    <button class="btn btn-danger btn-sm PDF-close" id="closeBtn">Close</button>
+    </div>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -63,7 +57,7 @@ $html = '
         h2 {
             text-align: center;
         }
-        table {
+        .pdfTable {
             width: 100%;
             border-collapse: collapse;
             border: 1px solid #ddd;
@@ -87,17 +81,38 @@ $html = '
         tr:hover {
             background-color:#ababab;
         }
+        #btn-g {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .PDF-download {
+            padding: 10px 20px;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        .PDF-download:hover {
+            background-color: #007bff;
+        }
+        .PDF-close {
+            padding: 10px 20px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-left: 10px;
+        }
+        .PDF-close:hover {
+            background-color:#a22a36;
+        }
 ';
 
-$dompdf->loadHtml($html);
-$dompdf->setPaper('A4', 'portrait');
-$dompdf->render();
-
-// Output as base64
-$pdfOutput = $dompdf->output();
-$base64PDF = base64_encode($pdfOutput);
-
+// Return the HTML as a JSON response
+// This will be used to generate the PDF
 echo json_encode([
     'status' => 'success',
-    'pdf' => $base64PDF
+    'data' => $html,
+    'message' => 'Student data fetched successfully.'
 ]);

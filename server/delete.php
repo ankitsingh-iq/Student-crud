@@ -1,4 +1,8 @@
 <?php
+// this file is used to delete student data
+// it gets id from the client and deletes the data from the database.
+// It then returns a response message.
+// Include the database connection file
 require 'db.php';
 
 $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
