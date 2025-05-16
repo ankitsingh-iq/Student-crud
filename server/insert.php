@@ -148,14 +148,13 @@ function test_input($data) {
 <div class="container">
     <div class="card shadow-lg">
         <h2 class="pt-2 pb-2 mb-4 border-dark border-bottom text-center text-black border-2">Student Data Management</h2>
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" class="needs-validation" method="POST" enctype="multipart/form-data" novalidate>
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST" enctype="multipart/form-data" novalidate>
             <div class="row g-3">
-                <div class="col-md-4 has-validation">
+                <div class="col-md-4">
                     <label for="name" class="form-label">Full Name</label>
-                    <input type="text" class="form-control
-                        <?php echo (!empty($nameErr)) ? 'is-invalid' : ''; ?>" value="<?php echo $name; ?>"
+                    <input type="text" class="form-control" value="<?php echo $name; ?>"
                         id="name" name="fullName" placeholder="Enter Name">
-                    <div class="invalid-feedback"> <?php echo $nameErr; ?> </div><br>
+                    <span class="error"> <?php echo $nameErr; ?> </span><br>
                 </div>
 
                 <div class="col-md-4">
@@ -197,8 +196,8 @@ function test_input($data) {
                         <input class="form-check-input" type="radio" name="gender" id="other"
                         <?php if (isset($gender) && $gender=="other") echo "checked";?> value="other">
                         <label class="form-check-label" for="other">Other</label>
-                    </div>
-                    <span class="error"> <?php echo $genderErr; ?> </span>
+                    </div><br>
+                    <span class="error" style="margin-left:70px;"> <?php echo $genderErr; ?> </span>
                 </div>
             </div><br>
 
@@ -242,13 +241,9 @@ function test_input($data) {
                 </div>
             </div><br>
 
-            <div class="mb-3">
-                <label for="document" class="form-label">Upload Document</label>
-                <input class="form-control" type="file" id="document" name="documents">
-            </div>
-
             <div class="text-center">
                 <button type="submit" class="btn btn-primary" id="btnSubmit">Submit</button>
+                <a href="../index.php" class="btn btn-secondary" id="btnCancel">Cancel</a>
             </div>
         </form>
     </div>
