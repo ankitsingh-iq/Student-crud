@@ -3,11 +3,17 @@
 require_once __DIR__ . '/config/config.php';
 
 
-// Fetch data from the database
-$query = "SELECT * FROM students"; // Replace 'students' with your actual table name
-$result = $conn->query($query);
+$query = "SELECT * FROM students";
+$stmp = $conn->prepare($query);
+if ($stmp === false) {
+    echo json_encode(['status' => 'error', 'message' => 'Error preparing statement']);
+    exit();
+}
 
-if ($result->num_rows > 0) {
+
+if ($stmp->execute()) {
+    $result = $stmp->get_result();
+
     // Create a temporary file to hold the CSV data
     $filename = 'students_data.csv';
 
@@ -36,9 +42,8 @@ if ($result->num_rows > 0) {
 
     // Close the output stream
     fclose($output);
-
     exit();
-    
 } else {
-    echo "No data found to export.";
+    echo json_encode(['status' => 'error', 'message' => 'No data found in the database']);
+    exit();
 }

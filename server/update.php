@@ -10,11 +10,25 @@ $phone = $_POST['phone'];
 $gender = $_POST['gender'];
 $address = $_POST['address'];
 $pincode = $_POST['pincode'];
-$country = $_POST['country'];
-$city = $_POST['city'];
-$state = $_POST['state'];
+$country_id = $_POST['country'];
+$city_id = $_POST['city'];
+$state_id = $_POST['state'];
 $id = $_POST['id'];
 
+// Fetch country name
+$countryRes = $conn->query("SELECT name FROM tbl_countries WHERE id='$country_id' LIMIT 1");
+$countryRow = $countryRes->fetch_assoc();
+$country = $countryRow ? $countryRow['name'] : '';
+
+// Fetch state name
+$stateRes = $conn->query("SELECT name FROM states WHERE id='$state_id' LIMIT 1");
+$stateRow = $stateRes->fetch_assoc();
+$state = $stateRow ? $stateRow['name'] : '';
+
+// Fetch city name
+$cityRes = $conn->query("SELECT name FROM cities WHERE id='$city_id' LIMIT 1");
+$cityRow = $cityRes->fetch_assoc();
+$city = $cityRow ? $cityRow['name'] : '';
 
 //check for email filed on in the database
 $email_check_query = "SELECT * FROM students WHERE email = ? AND id != ?";

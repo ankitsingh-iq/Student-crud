@@ -2,6 +2,9 @@ $(document).ready(function () {
   //! Country DropDown
   populateCountryDropdown();
 
+  //! Fetch Student List
+  fetchStudentList();
+
   // !When a country is selected, populate the state dropdown
   $("#country").change(function () {
     var countryId = $(this).val();
@@ -62,6 +65,7 @@ $(document).ready(function () {
           }).then(function () {
             $("#studentForm").trigger("reset");
             $("#imagePreviewContainer").empty(); // Clear image previews
+            fetchStudentList(); // Refresh the student list
           });
         }
       },
@@ -100,7 +104,7 @@ $(document).ready(function () {
     });
   });
 
-  //Custom Delete
+  //!Delete Section
   $(document).on("click", ".delete-btn", function () {
     // Get the student ID from the data-id attribute
     var studentId = $(this).data("id");
@@ -134,6 +138,10 @@ $(document).ready(function () {
                   .closest("tr")
                   .remove();
               });
+            } else if (response.type === "notfy") {
+              {
+                toastr.error(response.message);
+              }
             } else {
               // Handle error in case deletion fails
               Swal.fire(
@@ -157,7 +165,7 @@ $(document).ready(function () {
     });
   });
 
-  // Edit Section
+  //!Edit Section
   $(document).on("click", ".edit-btn", function () {
     var studentId = $(this).data("id");
     $("#documents").removeAttr("required");
@@ -195,7 +203,7 @@ $(document).ready(function () {
     $.ajax({
       type: "POST",
       url: "server/fetch-student-list.php",
-      data: { id: studentId },
+      data: { id: studentId, mode: "edit" },
       dataType: "json",
       success: function (response) {
         const data = response.data;
@@ -236,7 +244,7 @@ $(document).ready(function () {
               try {
                 documentArray = JSON.parse(value);
                 console.log("Parsed document array:", documentArray); // Step 2: Check format
-                 showExistingDocumentPreviews(documentArray);
+                showExistingDocumentPreviews(documentArray);
               } catch (error) {
                 console.log("Error parsing document array:", error);
               }
@@ -249,7 +257,7 @@ $(document).ready(function () {
     });
   });
 
-  //View Section
+  //!View Section
   $(document).on("click", ".view-btn", function () {
     var studentId = $(this).data("id");
     $.ajax({
@@ -270,9 +278,93 @@ $(document).ready(function () {
         $("#viewState").text(data.state || "N/A");
         $("#viewCity").text(data.city || "N/A");
         $("#viewPincode").text(data.pincode || "N/A");
+        $("#downloadPdfBtn").attr("data-id", data.id); // Set the student ID for PDF download
+        $("#viewDocuments").empty(); // Clear previous documents
+        if (data.documents) {
+          // Parse the JSON string to array
+          // console.log("Document value from DB:", data.documents); // Step 1: Check format
+
+          let documentArray = [];
+          try {
+            documentArray = JSON.parse(data.documents);
+            // console.log("Parsed document array:", documentArray); // Step 2: Check format
+            documentArray.forEach(function (docPath) {
+              const fileName = docPath.split("/").pop();
+              const previewHtml = `
+                <div class="d-inline-block m-2">
+                  <a href="${docPath}" target="_blank" class="btn btn-primary btn-sm">${fileName}</a>
+                </div>
+              `;
+              $("#viewDocuments").append(previewHtml);
+            });
+          } catch (error) {
+            console.log("Error parsing document array:", error);
+          }
+        }
 
         // Show the modal
         $("#studentInfoModal").modal("show");
+      },
+    });
+  });
+
+  //!import Section
+  $("#importForm").on("submit", function (e) {
+    e.preventDefault();
+    let formData = new FormData(this);
+    $.ajax({
+      type: "post",
+      url: "server/import-file.php",
+      data: formData,
+      contentType: false,
+      processData: false,
+      dataType: "json",
+      success: function (response) {
+        if (response.status === "success") {
+          Swal.fire({
+            icon: "success",
+            title: "Success!",
+            text: response.message,
+            confirmButtonText: "OK",
+          }).then(function () {
+            $("#importForm").trigger("reset");
+            fetchStudentList(); // Refresh the student list
+          });
+        }
+      },
+      error: function (xhr, status, error) {
+        console.error(`Error ${xhr.status}: ${xhr.statusText} - ${error}`);
+        const response = JSON.parse(xhr.responseText);
+        toastr.error(response.message);
+      },
+    });
+  });
+
+  //!Export Section
+  $("#exportbtn").on("click", function () {
+    window.location.href = "server/export.php";
+  });
+
+  //!pdf download section
+  $(document).on("click", "#downloadPdfBtn", function () {
+    let studentId = $(this).data("id");
+    $.ajax({
+      type: "POST",
+      url: "server/download-pdf.php",
+      data: { id: studentId },
+      xhrFields: {
+        responseType: "blob", // This will accept raw binary (PDF)
+      },
+      success: function (response) {
+        var blob = new Blob([response], { type: "application/pdf" });
+        var link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        link.download = "Student_Details.pdf";
+        link.click();
+      },
+      error: function (xhr, status, error) {
+        console.error(`Error ${xhr.status}: ${xhr.statusText} - ${error}`);
+        toastr.error("Failed to generate PDF.");
       },
     });
   });
@@ -349,6 +441,42 @@ function fetchCities(stateId, callback) {
       console.error(`Error ${xhr.status}: ${xhr.statusText} - ${error}`);
       toastr.error("Failed to load cities.");
       if (typeof callback === "function") callback();
+    },
+  });
+}
+
+function fetchStudentList() {
+  $.ajax({
+    type: "post",
+    url: "server/fetch-student-list.php",
+    dataType: "json",
+    success: function (response) {
+      $("table tbody").empty(); // Clear existing rows
+      if (response.status === "error") {
+        toastr.error(response.message);
+        $("table tbody").append(
+          `<tr><td colspan="6" class="text-center">No records found</td></tr>`
+        );
+        return;
+      } else {
+        toastr.success("Student List Loaded Successfully");
+        let data = response.data;
+        // Populate the table with student data
+        data.forEach((element) => {
+          $("table tbody").append(`<tr>
+            <td>${element.id}</td>
+            <td>${element.full_name}</td>
+            <td>${element.email}</td>
+            <td>${element.phone}</td>
+            <td>${element.city}</td>
+            <td>
+               <button class="btn btn-success btn-sm text-white view-btn" data-id="${element.id}">View</button>
+               <button class="btn btn-warning btn-sm text-white edit-btn" data-id="${element.id}">Edit</button>
+               <button class="btn btn-danger btn-sm text-white delete-btn" data-id="${element.id}">Delete</button>
+            </td>
+          </tr>`);
+        });
+      }
     },
   });
 }

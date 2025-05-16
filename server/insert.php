@@ -11,12 +11,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $gender = $_POST['gender'];
     $address = $_POST['address'];
     $pincode = $_POST['pincode'];
-    $country = $_POST['country'];
-    $city = $_POST['city'];
-    $state = $_POST['state'];
+    $country_id = $_POST['country'];
+    $city_id = $_POST['city'];
+    $state_id = $_POST['state'];
     $documents = $_FILES['documents'];
     $dbdocuments = [];
 
+     // Fetch country name
+    $countryRes = $conn->query("SELECT name FROM tbl_countries WHERE id='$country_id' LIMIT 1");
+    $countryRow = $countryRes->fetch_assoc();
+    $country = $countryRow ? $countryRow['name'] : '';
+
+    // Fetch state name
+    $stateRes = $conn->query("SELECT name FROM states WHERE id='$state_id' LIMIT 1");
+    $stateRow = $stateRes->fetch_assoc();
+    $state = $stateRow ? $stateRow['name'] : '';
+
+    // Fetch city name
+    $cityRes = $conn->query("SELECT name FROM cities WHERE id='$city_id' LIMIT 1");
+    $cityRow = $cityRes->fetch_assoc();
+    $city = $cityRow ? $cityRow['name'] : '';
 
     $emailCheck = $conn->query("SELECT id FROM students WHERE email='$email'");
     if ($emailCheck->num_rows > 0) {
@@ -43,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // echo('<pre>');
         // print_r($_FILES['documents']);  
         // echo('</pre>');
-        $uploadDir = __DIR__ . '/../uploads/';
+        $uploadDir = __DIR__ .'/../uploads/';
         // Loop through all uploaded files
         $allowedTypes = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
         for ($i = 0; $i < count($_FILES['documents']['name']); $i++) {

@@ -22,258 +22,165 @@ require_once __DIR__ . '/server/config/config.php';
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
   <!-- Toastr CSS (for styling the toast notifications) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />]
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
 
   <!-- custom css -->
   <link rel="stylesheet" href="css/styles.css">
 
 </head>
 
-<body>
-  <div class="container mt-5">
-    <h2 class="mb-4">Student Data Management</h2>
-
-    <!-- Personal Information Section -->
-    <h4 class="section-title">Personal Information</h4>
-    <form class="needs-validation" action="server/insert.php" method="post" id="studentForm" enctype="multipart/form-data" novalidate>
-
-      <!-- hidden value for Edit -->
-      <input type="hidden" name="id" value="">
-
-      <!-- hidden value for Edit document uplord -->
-      <input type="hidden" name="existing_documents" id="existingDocumentsInput">
-
-      <!-- Full Name and Date of Birth -->
-      <div class="form-row">
-        <div>
-          <label for="studentName" class="form-label">Full Name</label>
-          <input
-            type="text"
-            name="fullname"
-            class="form-control"
-            id="studentName"
-            placeholder="Enter Full Name" required />
-          <div class="invalid-feedback">
-            Please enter your full name.
+<body style="background-color: #f8f9fa;">
+  <div class="container py-4">
+    <h2 class="mb-4 text-center fw-bold text-primary">Student Data Management</h2>
+    <div class="row g-4">
+      <!-- Form Section -->
+      <div class="col-md-5">
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Add / Edit Student</h4>
           </div>
-        </div>
-        <div>
-          <label for="dob" class="form-label">Date of Birth</label>
-          <input type="date" name="dob" class="form-control" id="dob" required />
-          <div class="invalid-feedback">
-            Please select your date of birth.
-          </div>
-        </div>
-      </div>
-
-      <!-- Email and Phone -->
-      <div class="form-row">
-        <div>
-          <label for="email" class="form-label">Email</label>
-          <input
-            type="email"
-            name="email"
-            class="form-control"
-            id="email"
-            placeholder="Enter Email" required />
-          <div class="invalid-feedback">
-            Please enter a valid email address.
-          </div>
-        </div>
-        <div>
-          <label for="phone" class="form-label">Phone</label>
-          <input
-            type="text"
-            name="phone"
-            class="form-control"
-            id="phone"
-            placeholder="Enter Phone"
-            pattern="\d{10}"
-            required />
-          <div class="invalid-feedback">
-            Please enter a valid 10-digit phone number.
-          </div>
-        </div>
-      </div>
-
-      <!-- Gender -->
-      <div class="form-row">
-        <label class="form-label">Gender</label>
-        <div>
-          <div class="form-check form-check-inline">
-            <input
-              class="form-check-input"
-              type="radio"
-              name="gender"
-              id="inlineRadio1"
-              value="Male" required />
-            <label class="form-check-label" for="inlineRadio1">Male</label>
-          </div>
-          <div class="form-check form-check-inline">
-            <input
-              class="form-check-input"
-              type="radio"
-              name="gender"
-              id="inlineRadio2"
-              value="Female" required />
-            <label class="form-check-label" for="inlineRadio2">Female</label>
-          </div>
-          <div class="form-check form-check-inline">
-            <input
-              class="form-check-input"
-              type="radio"
-              name="gender"
-              id="inlineRadio3"
-              value="Other" required />
-            <label class="form-check-label" for="inlineRadio3">Other</label>
-          </div>
-          <!-- <div class="invalid-feedback">
-            Please select your gender.
-          </div> -->
-        </div>
-      </div>
-
-      <!-- Address Information Section -->
-      <h4 class="section-title">Address Information</h4>
-      <div class="form-row">
-        <div>
-          <label for="address" class="form-label">Address</label>
-          <input
-            type="text"
-            name="address"
-            class="form-control"
-            id="address"
-            placeholder="Enter Address" required />
-          <div class="invalid-feedback">
-            Please enter your address.
-          </div>
-        </div>
-        <div>
-          <label for="pincode" class="form-label">Pincode</label>
-          <input
-            type="text"
-            name="pincode"
-            class="form-control"
-            id="pincode"
-            placeholder="Enter Pincode"
-            pattern="\d{6}"
-            required />
-          <div class="invalid-feedback">
-            Please enter a valid 6-digit pincode.
-          </div>
-        </div>
-      </div>
-
-      <!-- Country, State, and City -->
-      <div class="form-row">
-        <div>
-          <label for="country" class="form-label">Country</label>
-          <select name="country" class="form-select " id="country" required>
-          </select>
-          <div class="invalid-feedback">
-            Please select a country.
-          </div>
-        </div>
-        <div>
-          <label for="state" class="form-label">State</label>
-          <select name="state" class="form-select" id="state" disabled>
-          </select>
-        </div>
-        <div>
-          <label for="city" class="form-label">City</label>
-          <select name="city" class="form-select" id="city" disabled>
-          </select>
-        </div>
-      </div>
-
-      <!-- Document Upload Section -->
-      <h4 class="section-title">Document Upload</h4>
-      <div class="mb-3">
-        <label for="documents" class="form-label">Upload Documents</label>
-        <input name="documents[]" class="form-control" type="file" id="documents" multiple required />
-        <div class="invalid-feedback">
-          Please upload at least one document.
-        </div>
-      </div>
-      <!-- Preview Section -->
-      <div id="imagePreviewContainer" class="d-flex gap-3 mt-3"></div>
-      <button type="submit" class="btn btn-primary">Save</button>
-    </form>
-
-
-
-
-
-    <!-- Import/Export Section -->
-    <h4 class="section-title">Data Management</h4>
-    <div class="container">
-      <div class="card shadow-lg">
-        <div class="card-header bg-primary text-white">
-          <h4 class="mb-0">Data Management</h4>
-        </div>
-        <div class="card-body">
-          <div class="row g-3">
-            <!-- Import Section -->
-            <div class="col-md-6">
-              <h5><i class="bi bi-upload"></i> Import Data</h5>
-              <form action="server/import-file.php" id="importForm" method="post" enctype="multipart/form-data">
-                <div class="mb-3">
-                  <input type="file" name="importFile" class="form-control" id="importFile">
+          <div class="card-body">
+            <form class="needs-validation" action="server/insert.php" method="post" id="studentForm" enctype="multipart/form-data" novalidate>
+              <!-- hidden value for Edit -->
+              <input type="hidden" name="id" value="">
+              <input type="hidden" name="existing_documents" id="existingDocumentsInput">
+              <!-- Full Name and Date of Birth -->
+              <div class="row mb-3">
+                <div class="col">
+                  <label for="studentName" class="form-label">Full Name</label>
+                  <input type="text" name="fullname" class="form-control" id="studentName" placeholder="Enter Full Name" required />
+                  <div class="invalid-feedback">Please enter your full name.</div>
                 </div>
-                <button type="submit" class="btn btn-success">
-                  <i class="bi bi-cloud-arrow-up-fill"></i> Upload File
-                </button>
-              </form>
-            </div>
-
-            <!-- Export Section -->
-            <div class="col-md-6">
-              <h5><i class="bi bi-download"></i> Export Data</h5>
-              <form id="exportForm" action="server/export.php" method="post">
-                <button type="submit" class="btn btn-secondary">
+                <div class="col">
+                  <label for="dob" class="form-label">Date of Birth</label>
+                  <input type="date" name="dob" class="form-control" id="dob" required />
+                  <div class="invalid-feedback">Please select your date of birth.</div>
+                </div>
+              </div>
+              <!-- Email and Phone -->
+              <div class="row mb-3">
+                <div class="col">
+                  <label for="email" class="form-label">Email</label>
+                  <input type="email" name="email" class="form-control" id="email" placeholder="Enter Email" required />
+                  <div class="invalid-feedback">Please enter a valid email address.</div>
+                </div>
+                <div class="col">
+                  <label for="phone" class="form-label">Phone</label>
+                  <input type="text" name="phone" class="form-control" id="phone" placeholder="Enter Phone" pattern="\d{10}" required />
+                  <div class="invalid-feedback">Please enter a valid 10-digit phone number.</div>
+                </div>
+              </div>
+              <!-- Gender -->
+              <div class="mb-3">
+                <label class="form-label">Gender</label>
+                <div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="gender" id="inlineRadio1" value="Male" required />
+                    <label class="form-check-label" for="inlineRadio1">Male</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="gender" id="inlineRadio2" value="Female" required />
+                    <label class="form-check-label" for="inlineRadio2">Female</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="gender" id="inlineRadio3" value="Other" required />
+                    <label class="form-check-label" for="inlineRadio3">Other</label>
+                  </div>
+                </div>
+              </div>
+              <!-- Address Information Section -->
+              <h5 class="section-title mt-4">Address Information</h5>
+              <div class="row mb-3">
+                <div class="col">
+                  <label for="address" class="form-label">Address</label>
+                  <input type="text" name="address" class="form-control" id="address" placeholder="Enter Address" required />
+                  <div class="invalid-feedback">Please enter your address.</div>
+                </div>
+                <div class="col">
+                  <label for="pincode" class="form-label">Pincode</label>
+                  <input type="text" name="pincode" class="form-control" id="pincode" placeholder="Enter Pincode" pattern="\d{6}" required />
+                  <div class="invalid-feedback">Please enter a valid 6-digit pincode.</div>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col">
+                  <label for="country" class="form-label">Country</label>
+                  <select name="country" class="form-select" id="country" required></select>
+                  <div class="invalid-feedback">Please select a country.</div>
+                </div>
+                <div class="col">
+                  <label for="state" class="form-label">State</label>
+                  <select name="state" class="form-select" id="state" disabled></select>
+                </div>
+                <div class="col">
+                  <label for="city" class="form-label">City</label>
+                  <select name="city" class="form-select" id="city" disabled></select>
+                </div>
+              </div>
+              <!-- Document Upload Section -->
+              <h5 class="section-title mt-4">Document Upload</h5>
+              <div class="mb-3">
+                <label for="documents" class="form-label">Upload Documents</label>
+                <input name="documents[]" class="form-control" type="file" id="documents" multiple required />
+                <div class="invalid-feedback">Please upload at least one document.</div>
+              </div>
+              <div id="imagePreviewContainer" class="d-flex gap-3 mt-3"></div>
+              <button type="submit" class="btn btn-primary w-100 mt-3">Save</button>
+            </form>
+          </div>
+        </div>
+        <!-- Import/Export Section -->
+        <div class="card shadow-sm mt-4">
+          <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">Data Management</h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-6">
+                <form action="" id="importForm" method="post" enctype="multipart/form-data">
+                  <label class="form-label">Import Data</label>
+                  <input type="file" name="importFile" class="form-control mb-2" id="importFile">
+                  <button type="submit" class="btn btn-success w-100">
+                    <i class="bi bi-cloud-arrow-up-fill"></i> Upload File
+                  </button>
+                </form>
+              </div>
+              <div class="col-6 d-flex flex-column justify-content-end">
+                <label class="form-label">Export Data</label>
+                <button id="exportbtn" class="btn btn-secondary w-100 mt-auto">
                   <i class="bi bi-cloud-arrow-down-fill"></i> Export Data
                 </button>
-              </form>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      <!-- Table Section -->
+      <div class="col-md-7">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Student Data List</h4>
+          </div>
+          <div class="card-body">
+            <table class="table table-striped table-hover align-middle">
+              <thead class="table-dark">
+                <tr>
+                  <th>No</th>
+                  <th>Full Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>City</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Table rows will be populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <!-- Table Section -->
-    <div class="mt-5">
-      <h3>Sample Student Data List</h3>
-      <table class="table table-striped table-hover">
-        <thead class="table-dark">
-          <tr>
-            <th>No</th>
-            <th>Full Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>City</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-
-          <!-- <tr>
-            <td>1</td>
-            <td>John Doe</td>
-            <td>john.doe@example.com</td>
-            <td>1234567890</td>
-            <td>New York</td>
-            <td>
-              <button class="btn btn-success btn-sm"><a href="view.php?id=">View</a></button>
-              <button class="btn btn-warning btn-sm">Edit</button>
-              <button class="btn btn-danger btn-sm">Delete</button>
-              <button class="btn btn-info btn-sm">PDF</button>
-            </td>
-          </tr> -->
-        </tbody>
-      </table>
-    </div>
-
-
   </div>
 
   <!-- Student Info Modal -->
@@ -330,7 +237,21 @@ require_once __DIR__ . '/server/config/config.php';
                 <strong>Pincode:</strong> <span id="viewPincode"></span>
               </div>
             </div>
+
+            <div class="row mb-3">
+              <div class="col-md-12">
+                <strong>Documents:</strong>
+                <div id="viewDocuments"></div>
+              </div>
+            </div>
+
           </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button id="downloadPdfBtn" data-id="" class="btn btn-info">
+            <i class="bi bi-file-earmark-pdf"></i> Download PDF
+          </button>
         </div>
       </div>
     </div>
@@ -347,7 +268,7 @@ require_once __DIR__ . '/server/config/config.php';
 
   <!-- Custom JavaScript -->
   <script src="js/script.js"></script>
-  <script src="js/fetch-student-list.js"></script>
+
   <script src="js/multiple-file-priview.js"></script>
 </body>
 

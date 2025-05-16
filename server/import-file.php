@@ -24,7 +24,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $result = $conn->query("SHOW COLUMNS FROM students");
 
                 if ($result === false) {
-                    die("Error fetching table columns: " . $conn->error);
+                    http_response_code(500);
+                    echo json_encode(['status' => 'error', 'message' => 'Error fetching columns from database']);
+                    fclose($file);
+                    exit();
                 }
 
                 $dbcolumns = [];
@@ -43,7 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     if (in_array($col, $dbcolumns)) {
                         $mappingHeader[] = $col;
                     } else {
-                        echo ("Column '$col' does not exist in the database.");
+                        http_response_code(500);
+                        echo json_encode(['status' => 'error', 'message' => "Column '$col' does not exist in the database."]);
                         fclose($file);
                         exit;
                     }
@@ -68,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 
                 // 5. Insert data into the database
-
+                $allInserted = true;
                 foreach ($studentsData as $student) {
 
                     $colomns = implode(", ", array_keys($student));
@@ -76,22 +80,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                     $sql = "INSERT INTO students ($colomns) VALUES ('$values')";
 
-                    // echo ($sql);
-
-
-                    if (!$conn->query($sql)) {
-                        echo ("Error: " . $sql . "<br>" . $conn->error);
-                    }
-
+                    $result = $conn->query($sql);
+                    if (!$result) {
+                        $allInserted = false;
+                        http_response_code(500);
+                        echo json_encode(['status' => 'error', 'message' => "Error executing statement: " . $conn->error]);
+                        $conn->close();
+                        exit;
+                    } 
                 }
-
-
+                // 6. Return success response
+                if ($allInserted) {
+                    http_response_code(200);
+                    echo json_encode(['status' => 'success', 'message' => 'Data imported successfully']);
+                } else {
+                    http_response_code(500);
+                    echo json_encode(['status' => 'error', 'message' => 'Some data could not be imported.']);
+                }
 
             }
         } else {
-            echo ("Invalid file type. Please upload a CSV file.");
+            http_response_code(500);
+            echo json_encode(['status' => 'error', 'message' => 'Invalid file type. Only CSV files are allowed.']);
         }
     } else {
-        echo ("No file uploaded or there was an error.");
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => 'No file uploaded or there was an upload error.']);
     }
 }
