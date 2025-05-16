@@ -1,25 +1,21 @@
 <?php
 session_start();
-if(isset($_SESSION['status_msg'])) {
-    echo "<div class='col-xs-12 text-black'><div class='alert'" . $_SESSION['status_msg'] . "</div></div>";
-    unset($_SESSION['status_msg']);
+
+if(isset($_SESSION['status_msg'])){
+    $type = $_SESSION['status_type'] ?? 'info';
+    echo "<div class='alert alert-$type alert-dismissible fade show' role='alert'>
+        " . $_SESSION['status_msg'] . "
+        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+    </div>";
+    unset($_SESSION['status_msg'], $_SESSION['status_type']);
 }
 ?>
-<!-- Display status message -->
-<!-- <?php if(!empty($_SESSION['status_msg'])){ ?>
-<div class="col-xs-12">
-    <div class="alert <?php echo $_SESSION['status_msg']; ?>"></div>
-</div>
-<?php } ?> -->
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         #btnImport {
             margin-top: 10px;
@@ -66,7 +62,6 @@ if(isset($_SESSION['status_msg'])) {
                         echo '<table class="table table-lg table-light table-hover rounded shadow-lg text-center">';
                             echo "<thead class='table-dark'>";
                                 echo "<tr>";
-                                    echo "<th>ID</th>";
                                     echo "<th>Name</th>";
                                     echo "<th>Email</th>";
                                     echo "<th>Phone</th>";
@@ -81,7 +76,6 @@ if(isset($_SESSION['status_msg'])) {
                             echo "<tbody>";
                             while($row = $result->fetch()) {
                                 echo "<tr>";
-                                    echo "<td>" . $row['id'] . "</td>";
                                     echo "<td>" . $row['full_name'] . "</td>";
                                     echo "<td>" . $row['email'] . "</td>";
                                     echo "<td>" . $row['phone'] . "</td>";
@@ -113,17 +107,9 @@ if(isset($_SESSION['status_msg'])) {
         </div>
     </div>
 
-
-<script>
-    function formToggle(ID) {
-        var element = document.getElementById(ID);
-        if(element.style.display === "none") {
-            element.style.display = "block";
-        }else {
-            element.style.display = "none";
-        }
-    }
-</script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="../js/script.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
