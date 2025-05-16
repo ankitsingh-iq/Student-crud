@@ -5,16 +5,19 @@ include_once 'db_connection.php';
 $filename = "studentsList_" . date('Y-m-d') . ".csv";
 $delimiter = ",";
 
-// Create a file pointer
+/* Create a file pointer
+Open a temporary file in the server’s memory (RAM)
+*/
 $f = fopen('php://memory', 'w');
 
 // Set column headers
-$fields = array('ID', 'Name', 'Email', 'Phone', 'DateOfBirth', 'Gender', 'Address', 'City');
-fputcsv($f, $fields, $delimiter);
+$fields = array('ID', 'Name', 'Email', 'Phone', 'DateOfBirth', 'Gender', 'Address', 'City'); //not define this that show only row data
+fputcsv($f, $fields, $delimiter);   //put the array elements in a CSV file and Writes the header row into the CSV file
 
 // Get records from the database
 $result = $conn->prepare("SELECT id, full_name, email, phone, dob, gender, address, city FROM students");
 $result->execute();
+
 while($row = $result->fetch(PDO::FETCH_ASSOC)) {
     fputcsv($f, [
         $row['id'],
@@ -35,7 +38,8 @@ fseek($f, 0);
 header('Content-Type: text/csv');
 header('Content-Disposition: attachment; filename="' . $filename . '";');
 
-// Output all remaining data on a file pointer
+// Output all remaining data on a file pointer and Show (or download) the content from first to end
+//send the content to the browser
 fpassthru($f);
 
 // Exit from file
