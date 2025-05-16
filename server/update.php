@@ -7,7 +7,7 @@ $nameErr = $emailErr = $phoneErr = $dobErr = $genderErr = $addressErr = $pincode
 if(isset($_GET['id']) && !empty($_GET['id'])) {
 
     $id = $_GET['id'];
-    echo $id;
+    //echo $id;
 
     $query = "SELECT * FROM students WHERE id=:id";
     $stmt = $conn->prepare($query);
@@ -163,10 +163,9 @@ function test_input($data) {
             <div class="row g-3">
                 <div class="col-md-4 has-validation">
                     <label for="name" class="form-label">Full Name</label>
-                    <input type="text" class="form-control
-                        <?php echo (!empty($nameErr)) ? 'is-invalid' : ''; ?>" value="<?= $res->full_name; ?>"
+                    <input type="text" class="form-control" value="<?= $res->full_name; ?>"
                         id="name" name="fullName" placeholder="Enter Name">
-                    <div class="invalid-feedback"> <?php echo $nameErr; ?> </div><br>
+                    <span class="error"> <?php echo $nameErr; ?> </span><br>
                 </div>
 
                 <div class="col-md-4">
@@ -178,7 +177,7 @@ function test_input($data) {
 
                 <div class="col-md-4">
                     <label for="phone" class="form-label">Phone</label>
-                    <input type="text" class="form-control" id="phone" name="phone" 
+                    <input type="text" class="form-control" id="phone" name="phone"
                     value="<?= $res->phone; ?>"placeholder="Enter Phone">
                     <span class="error"> <?php echo $phoneErr; ?> </span><br>
                 </div>
@@ -196,36 +195,39 @@ function test_input($data) {
 
                     <div class="form-check form-check-inline" id="gFemale">
                         <input class="form-check-input" type="radio" name="gender" id="female"
-                        <?php if (isset($gender) && $gender=="female") echo "checked";?> value="female">
+                        <?php if (isset($gender) && $gender=="female") echo "checked";?>
+                            value="Female" <?=$res->gender == 'Female' ? 'checked' : ''?>>
                         <label class="form-check-label" for="female">Female</label>
                     </div>
 
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="gender" id="male"
-                        <?php if (isset($gender) && $gender=="male") echo "checked";?> value="male">
+                        <?php if (isset($gender) && $gender=="male") echo "checked";?>
+                            value="Male" <?=$res->gender == 'Male' ? 'checked' : ''?>>
                         <label class="form-check-label" for="male">Male</label>
                     </div>
 
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="gender" id="other"
-                        <?php if (isset($gender) && $gender=="other") echo "checked";?> value="other">
+                        <?php if (isset($gender) && $gender=="other") echo "checked";?>
+                            value="Other" <?=$res->gender == 'Other' ? 'checked' : ''?>>
                         <label class="form-check-label" for="other">Other</label>
                     </div>
-                    <span class="error"> <?php echo $genderErr; ?> </span>
+                    <span class="error" style="margin-left:70px;"> <?php echo $genderErr; ?> </span>
                 </div>
             </div><br>
 
             <div class="row g-3">
                 <div class="col">
                     <label for="address" class="form-label">Address</label>
-                    <input class="form-control" id="address" name="address" style="width:600px;" 
+                    <input class="form-control" id="address" name="address" style="width:600px;"
                     value="<?= $res->address; ?>"placeholder="Enter Address">
                     <span class="error"> <?php echo $addressErr; ?> </span>
                 </div>
 
                 <div class="col">
                     <label for="pincode" class="form-label">Pincode</label>
-                    <input type="text" class="form-control" id="pincode" name="pincode" 
+                    <input type="text" class="form-control" id="pincode" name="pincode"
                     value="<?= $res->pincode; ?>"placeholder="Enter Pincode">
                     <span class="error"> <?php echo $pincodeErr; ?> </span>
                 </div>
@@ -257,15 +259,9 @@ function test_input($data) {
                 </div>
             </div><br>
 
-            <div class="mb-3">
-                <label for="document" class="form-label">Upload Document</label>
-                <input class="form-control" type="file" id="document" name="documents">
-            </div>
-
-            <input type="hidden" name="id" value="<?php echo $id; ?>"/>
             <div class="text-center">
                 <button type="submit" class="btn btn-primary" id="btnSubmit">Submit</button>
-                <a href="../index.php" class="btn btn-secondary ml-2">Cancel</a>
+                <a href="../index.php" class="btn btn-secondary"  id="btnCancel">Cancel</a>
             </div>
         </form>
     </div>
