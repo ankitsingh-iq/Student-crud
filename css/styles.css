@@ -23,6 +23,10 @@ body {
     padding: 10px 30px;
 }
 
+#btnCancel {
+    padding: 10px 30px;
+}
+
 .error {
     color: red;
 }
