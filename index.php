@@ -84,7 +84,7 @@
                     <div>
                         <label for="country" class="form-label">Country</label>
                         <select id="country" name="country" class="form-select" onchange="getStates()">
-                            <option value="">Select Country</option>
+                            <option value="" selected disabled>Select Country</option>
                             <option value="India">India</option>
                             <option value="USA">USA</option>
                         </select>
@@ -93,14 +93,14 @@
                     <div>
                         <label for="state" class="form-label">State</label>
                         <select id="state" name="state"  class="form-select" onchange="getCities()" disabled>
-                            <option value="">Select State</option>
+                            <option value="" selcted diabled>Select State</option>
                         </select>
                         <p class="state-error"></p>
                     </div>
                     <div>
                         <label for="city" class="form-label">City</label>
                         <select id="city" name="city"  class="form-select" disabled >
-                            <option value="">Select City</option>
+                            <option value="" selcted diabled>Select City</option>
                         </select>
                         <p class="city-error"></p>
                     </div>
@@ -136,16 +136,11 @@
                         <th>Email</th>
                         <th>Phone</th>
                         <th>City</th>
-                        <th>Actions</th>
+                        <th colspan="3">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="studentTableBody">
-                    <!-- Sample data will be dynamically inserted here -->
-                    <?php
-                    // Fetch data from the database
-                    require 'server/fetch.php';
-
-                    ?>
+                    <!-- data will be dynamically inserted here -->
                 </tbody>
             </table>
         </div>

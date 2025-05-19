@@ -95,6 +95,7 @@ $html = '
         }
         .PDF-download:hover {
             background-color: #007bff;
+            color: white;
         }
         .PDF-close {
             padding: 10px 20px;
