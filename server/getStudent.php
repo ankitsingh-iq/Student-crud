@@ -23,6 +23,7 @@ $stmt->execute();
 $result = $stmt->get_result();
 if ($result->num_rows > 0) {
     $student = $result->fetch_assoc();
+    $student['documents'] = array_filter(array_map('trim', explode(',', $student['documents'])));
     echo json_encode(['status' => 'success', 'data' => $student]);
 } else {
     echo json_encode(['status' => 'error', 'message' => 'No student found with the provided ID.']);

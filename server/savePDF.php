@@ -41,7 +41,6 @@ try {
     // Save the PDF file
     file_put_contents($filepath, $output);
 
-
    // send the response back to the client
     echo json_encode([
         'status' => 'success',

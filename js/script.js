@@ -1,3 +1,6 @@
+let selectedFiles = [];
+let existingFiles = [];
+let removedFiles = [];
 
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('studentForm');
@@ -5,87 +8,49 @@ document.addEventListener('DOMContentLoaded', function () {
     // fetch student data from server on load
     fetchtableData();
 
-    form.addEventListener('submit', function (e) {
+    form?.addEventListener('submit', async function (e) {
         e.preventDefault();
 
-        const formData = getFormData();
-        document.querySelectorAll('.text-danger').forEach(el => {
-            el.innerText = '';
-            el.style.display = 'none';
-        });
+        const isUpdate = form.getAttribute('data-update-id') !== '';
+        const formData = await getFormData();
 
-        if (form.attributes['data-update-id'].value === '') {
-            fetch('server/insert.php', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        // console.log(data.data);
-                        resetForm();
-                        fetchtableData();
-                        // Show success message
-                        showSuccessAlert('Success!', data.message);
-                        // window.location.href = window.location.pathname + '?success=' + encodeURIComponent(data.message);
-                    } else {
-                        console.log(data.message);
-                        showErrorAlert('Error!', data.message);
-                        // Show error messages
-                        console.log(data.errors);
-                        for (const field in data.errors) {
-                            const errorMessages = data.errors[field];
-                            const error = (document.querySelector(`.${field}-error`));
-                            if (error) {
-                                error.innerText = errorMessages.join(', ');
-                                error.style.display = 'block';
-                                error.classList.add('text-danger');
-                            }
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.log('Error:', error);
-                    showErrorAlert('Error!', 'Unexpected error.');
-                });
-        }
-        else {
+        const endpoint = isUpdate ? 'server/edit.php' : 'server/insert.php';
+
+        if (isUpdate) {
             formData.append('id', form.getAttribute('data-update-id'));
-            console.log(formData.get('id'));
-            fetch('server/edit.php', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        resetForm();
-                        fetchtableData()
-                        // Show success message
-                        showSuccessAlert('Success!', data.message);
-                        // window.location.href = window.location.pathname + '?success=' + encodeURIComponent(data.message);
-                    } else {
-                        console.log(data.message);
-                        showErrorAlert('Error!', data.message);
-                        // Show error messages
-                        console.log(data.errors);
-                        for (const field in data.errors) {
-                            const errorMessages = data.errors[field];
-                            const error = (document.querySelector(`.${field}-error`));
-                            if (error) {
-                                error.innerText = errorMessages.join(', ');
-                                error.style.display = 'block';
-                                error.classList.add('text-danger');
-                            }
+        }
+        selectedFiles.forEach(file => formData.append('files[]', file));
+
+        // show form data in console
+        formData.forEach((value, key) => key == 'files[]' ?
+            console.log(`${key}: ${value.name}`) :
+            console.log(`${key}: ${value}`));
+        fetch(endpoint, {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    console.log(data.message);
+                    resetForm();
+                    fetchtableData();
+                    showSuccessAlert('Success!', data.message);
+                } else {
+                    showErrorAlert('Error!', data.message);
+                    for (const field in data.errors) {
+                        const errorMessages = data.errors[field];
+                        const error = document.querySelector(`.${field}-error`);
+                        if (error) {
+                            error.innerText = errorMessages.join(', ');
+                            error.style.display = 'block';
+                            error.classList.add('text-danger');
                         }
                     }
-                })
-                .catch(error => {
-                    console.log('Error:', error);
-                    showErrorAlert('Error!', 'Unexpected error.');
-                });
-        }
+                }
+            })
     });
+
     document.getElementById('studentTableBody').addEventListener('click', function (e) {
         const target = e.target;
 
@@ -116,6 +81,7 @@ function fetchtableData() {
 }
 
 function handleEdit(studentId) {
+    resetForm();
     const form = document.getElementById('studentForm');
     const formData = new FormData();
     formData.append('id', studentId);
@@ -153,8 +119,12 @@ function handleEdit(studentId) {
                         document.getElementById('city').value = student.city;
                     }, 100);
                 }, 100);
-
                 form.setAttribute('data-update-id', studentId);
+                console.log(student.documents);
+
+                existingFiles = student.documents;
+                updateDocs();
+
                 const submitButton = document.querySelector('button[type="submit"]');
                 submitButton.innerText = 'Update';
                 submitButton.classList.remove('btn-primary');
@@ -188,11 +158,6 @@ function handleDelete(studentId) {
                     if (data.status === 'success') {
                         fetchtableData();
                         showSuccessAlert('Deleted!', data.message || 'Student has been deleted.');
-                        // Remove row from HTML table
-                        // if (row) row.remove();
-                        // if (document.querySelectorAll('tbody tr').length === 0) {
-                        //     window.location.reload();
-                        // }
                     } else {
                         showErrorAlert('Error!', data.message);
                     }
@@ -248,17 +213,11 @@ function handlePDF(studentId) {
                             showErrorAlert('Error!', 'Unexpected error.');
                         });
                     // Hide the PDF view and show the form again
-                    PDFview.style.display = 'none';
-                    PDFview.innerHTML = '';
-                    form.style.display = 'block';
-                    form.reset();
+                    resetForm();
                 });
                 document.getElementById("closeBtn").addEventListener("click", function () {
                     // Hide the PDF view and show the form again
-                    PDFview.style.display = 'none';
-                    PDFview.innerHTML = '';
-                    form.style.display = 'block';
-                    form.reset();
+                    resetForm();
                 });
             }
             else {
@@ -319,9 +278,6 @@ function getStates() {
     } else {
         stateSelect.disabled = true;
     }
-
-    console.log("Selected country:", country);
-    console.log("Available states:", states);
 }
 
 // Function to return states based on selected country
@@ -382,21 +338,145 @@ function getCity() {
     return document.getElementById('city').value;
 }
 
-// Utility function to get form data
-function getFormData() {
-    const form = document.getElementById('studentForm');
-    const formData = new FormData(form);
-    return formData;
-}
 // Utility function to reset form
 function resetForm() {
+    selectedFiles = [];
+    existingFiles = [];
+    removedFiles = [];
+
     const form = document.getElementById('studentForm');
-    form.reset();
-    form.setAttribute('data-update-id', '');
+    if (form) {
+        form.setAttribute('data-update-id', '');
+        form.style.display = 'block';
+        form.reset();
+    }
+
+    const PDFview = document.getElementById('resultContainer');
+    if (PDFview) {
+        PDFview.style.display = 'none';
+        PDFview.innerHTML = '';
+    }
+    const el = document.querySelector('.imagePreview')
+    if (el) el.innerHTML = '';
+
     const submitButton = document.querySelector('button[type="submit"]');
     if (submitButton) {
         submitButton.innerText = 'Save';
         submitButton.classList.remove('btn-warning');
         submitButton.classList.add('btn-primary');
     }
+}
+
+function updateDocs() {
+    const fileInput = document.getElementById('documents');
+    const previewContainer = document.querySelector('.imagePreview');
+    const size = 5 * 1024 * 1024;
+
+    previewContainer.innerHTML = ''; // clear old previews
+
+    // Display previously uploaded files
+    if (existingFiles && existingFiles.length > 0) {
+        existingFiles.forEach(fileName => {
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'img-thumbnail m-2 position-relative';
+            imgDiv.style.display = 'inline-block';
+            imgDiv.style.width = '100px';
+            imgDiv.dataset.existing = 'true';
+            imgDiv.dataset.fileName = fileName;
+
+            imgDiv.innerHTML = `
+                <img src="/../uploads/${fileName}" style="width: 100%; height: auto;" />
+                <button class="btn btn-sm btn-danger position-absolute top-0 end-0" title="Remove">&times;</button>
+            `;
+
+            imgDiv.querySelector('button').addEventListener('click', () => {
+                removedFiles.push(fileName);
+                existingFiles = existingFiles.filter(f => f !== fileName);
+                previewContainer.removeChild(imgDiv);
+            });
+            previewContainer.appendChild(imgDiv);
+        });
+    }
+
+    Array.from(fileInput.files).forEach((file, index) => {
+        if (!file.type.startsWith('image/')) {
+            showErrorAlert('Invalid File', 'Only image files are allowed.');
+            return;
+        }
+
+        if (file.size > size) {
+            showErrorAlert('File Too Large', 'Each file must be less than 5MB.');
+            return;
+        }
+
+        // Enforce max file limit
+        if ((selectedFiles.length + existingFiles.length) >= 5) {
+            showErrorAlert('Limit Reached', 'You can only upload a maximum of 5 files.');
+            return;
+        }
+
+        // Check for duplicates by name and size
+        const isDuplicate = selectedFiles.some(f => f.name === file.name && f.size === file.size);
+        if (isDuplicate) {
+            showErrorAlert('Duplicate File', `"${file.name}" has already been added.`);
+            return;
+        }
+
+        selectedFiles.push(file);
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'img-thumbnail m-2 position-relative';
+            imgDiv.style.display = 'inline-block';
+            imgDiv.style.width = '100px';
+
+            // Store file in dataset
+            imgDiv.dataset.fileName = file.name;
+            imgDiv.dataset.fileSize = file.size;
+
+            imgDiv.innerHTML = `
+            <img src="${e.target.result}" style="width: 100%; height: auto;" />
+            <button class="btn btn-sm btn-danger position-absolute top-0 end-0" title="Remove">&times;</button>`;
+
+            imgDiv.querySelector('button').addEventListener('click', () => {
+                // Find index dynamically
+                const fileName = imgDiv.dataset.fileName;
+                const fileSize = Number(imgDiv.dataset.fileSize);
+
+                const fileIndex = selectedFiles.findIndex(f => f.name === fileName && f.size === fileSize);
+
+                if (fileIndex !== -1) {
+                    selectedFiles.splice(fileIndex, 1);
+                }
+
+                previewContainer.removeChild(imgDiv);
+                if (selectedFiles.length === 0 && existingFiles.length === 0) {
+                    previewContainer.innerHTML = '';
+                }
+                console.log(selectedFiles);
+            });
+            previewContainer.appendChild(imgDiv);
+        };
+        reader.readAsDataURL(file);
+    });
+    // Clear original input so re-selecting same file triggers change
+    fileInput.value = '';
+}
+
+// Utility function to get form data
+async function getFormData() {
+    console.log(selectedFiles);
+
+    const form = document.getElementById('studentForm');
+    const formData = new FormData(form);
+
+    if (existingFiles.length > 0) {
+        formData.append('existingFiles', existingFiles.join(', ')); // previously uploaded & not deleted
+    }
+    if (removedFiles.length > 0) {
+        formData.append('removedFiles', removedFiles.join(', ')); // to delete from server
+    }
+
+    return formData;
 }

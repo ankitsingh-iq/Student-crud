@@ -10,11 +10,35 @@ if ($id === false) {
     echo json_encode(['status' => 'error', 'message' => 'Invalid ID provided.']);
     exit;
 }
+
+// Delete files from uploads directory
+$uploadDir = __DIR__ . '/../uploads/';
+
+// Prepare the SQL statement
+$sql = "SELECT * FROM students WHERE id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    $removedFiles = array_filter(array_map('trim', explode(',', $row['documents'])));
+} else {
+    echo json_encode(['status' => 'error', 'message' => "Student not foumd"]);
+    exit;
+}
 $sql = "DELETE FROM students WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $id);
 if ($stmt->execute() == TRUE) {
     $db_message .= "Record deleted successfully";
+    $uploadDir = __DIR__ . '/../uploads/';
+    foreach ($removedFiles as $file) {
+        $filePath = $uploadDir . $file;
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
+    }
     echo json_encode(['status' => 'success', 'message' => $db_message]);
 } else {
     $db_message .= "Error: " . $sql . "<br>" . $conn->error;

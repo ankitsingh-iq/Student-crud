@@ -15,10 +15,12 @@
         <h2 class="mt-2">Student Data Management</h2>
     </div>
     <div class="container">
-        <div>
+        <!-- Form Section -->
+        <div class="form-container">
             <!-- Personal Information Section -->
             <div id="resultContainer"></div>
             <form id="studentForm" method="POST" action="">
+                <p class="database-error"></p>
                 <h4 class="section-title">Personal Information</h4>
                 <div class="form-row">
                     <div>
@@ -112,6 +114,7 @@
                 <div class="mb-3">
                     <label for="documents" class="form-label">Upload Documents</label>
                     <input class="form-control" type="file" id="documents" multiple onchange="updateDocs()"/>
+                    <p class="documents-error"></p>
                 </div>
 
                 <!-- Import/Export Section

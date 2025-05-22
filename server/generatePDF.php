@@ -45,12 +45,35 @@ $html = '
         <tr><th>State</th><td>' . htmlspecialchars($student['state']) . '</td></tr>
         <tr><th>City</th><td>' . htmlspecialchars($student['city']) . '</td></tr>
     </table>
+';
+
+if (!empty($student['documents'])) {
+    $documents = explode(',', $student['documents']);
+    $html .= '<h3>Uploaded Documents</h3><div style="display:flex; flex-wrap: wrap;">';
+    $uploadDir = __DIR__ . '/../uploads/';
+    foreach ($documents as $doc) {
+        $doc = trim($doc);
+        if ($doc !== '') {
+            $filePath = $uploadDir . $doc;
+            if (file_exists($filePath)) {
+                $imageData = base64_encode(file_get_contents($filePath));
+                $src = 'data:image/' . pathinfo($filePath, PATHINFO_EXTENSION) . ';base64,' . $imageData;
+                $html .= '<div style="margin: 5px;"><img src="' . $src . '" alt="document" style="width: 100px; height: auto; border: 1px solid #ddd; padding: 2px;" /></div>';
+            } else {
+                $html .= '<div style="margin: 5px;">[Missing Image: ' . htmlspecialchars($doc) . ']</div>';
+            }
+        }
+    }
+    $html .= '</div>';
+}
+
+$html .= '
     <div id="btn-g">
     <button class="btn btn-info btn-sm PDF-download" id="downloadBtn">Download</button>
     <button class="btn btn-danger btn-sm PDF-close" id="closeBtn">Close</button>
     </div>
     <style>
-        body {
+        #resultContainer {
             font-family: Arial, sans-serif;
             margin: 20px;
         }
@@ -62,23 +85,23 @@ $html = '
             border-collapse: collapse;
             border: 1px solid #ddd;
         }
-        th, td {
+        #resultContainer th, td {
             text-align: left;
         }
-        th {
+        #resultContainer th {
             background-color: #f2f2f2;
             font-weight: bold;
             border: 1px solid #ddd;
         }
-        td {
+        #resultContainer td {
             padding: 8px;
             font-size: 14px;
             border: 1px solid #ddd;
         }
-        tr:nth-child(even) {
+        #resultContainer tr:nth-child(even) {
             background-color:#f6f6f6;
         }
-        tr:hover {
+        #resultContainer tr:hover {
             background-color:#ababab;
         }
         #btn-g {
@@ -108,8 +131,8 @@ $html = '
         .PDF-close:hover {
             background-color:#a22a36;
         }
+    </style>
 ';
-
 // Return the HTML as a JSON response
 // This will be used to generate the PDF
 echo json_encode([
