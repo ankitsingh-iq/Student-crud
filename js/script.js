@@ -1,90 +1,72 @@
-let selectedFiles = [];
-let existingFiles = [];
-let removedFiles = [];
+let selectedFiles = [], existingFiles = [], removedFiles = [];
 
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('studentForm');
+    const tableBody = document.getElementById('studentTableBody');
     resetForm();
-    // fetch student data from server on load
     fetchtableData();
 
     form?.addEventListener('submit', async function (e) {
         e.preventDefault();
 
-        const isUpdate = form.getAttribute('data-update-id') !== '';
+        const isUpdate = form.dataset.updateId !== '';
         const formData = await getFormData();
 
         const endpoint = isUpdate ? 'server/edit.php' : 'server/insert.php';
 
         if (isUpdate) {
-            formData.append('id', form.getAttribute('data-update-id'));
+            console.log("updating");
+            formData.append('id', form.dataset.updateId);
         }
-        selectedFiles.forEach(file => formData.append('files[]', file));
+        selectedFiles.forEach((file, index) => formData.append(`files[${index}]`, file));
+        formData.forEach((value, key) => {
+            if (value instanceof File) {
+                console.log(`${key}: ${value.name}`);
+            } else {
+                console.log(`${key}: ${value}`);
+            }
+        });
 
-        // show form data in console
-        formData.forEach((value, key) => key == 'files[]' ?
-            console.log(`${key}: ${value.name}`) :
-            console.log(`${key}: ${value}`));
-        fetch(endpoint, {
-            method: 'POST',
-            body: formData
-        })
+        fetch(endpoint, { method: 'POST', body: formData })
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    console.log(data.message);
                     resetForm();
                     fetchtableData();
                     showSuccessAlert('Success!', data.message);
                 } else {
                     showErrorAlert('Error!', data.message);
-                    for (const field in data.errors) {
-                        const errorMessages = data.errors[field];
-                        const error = document.querySelector(`.${field}-error`);
-                        if (error) {
-                            error.innerText = errorMessages.join(', ');
-                            error.style.display = 'block';
-                            error.classList.add('text-danger');
-                        }
-                    }
+                    showValidationErrors(data.errors);
                 }
             })
+            .catch(error => {
+                console.error('Error:', error);
+                showErrorAlert('Error!', 'Unexpected error.');
+            });
     });
 
-    document.getElementById('studentTableBody').addEventListener('click', function (e) {
-        const target = e.target;
+    tableBody.addEventListener('click', function (e) {
+        const Id = e.target.dataset.id;
 
-        if (target.classList.contains('edit-btn')) {
-            const studentId = target.getAttribute('data-id');
-            handleEdit(studentId);
-        }
+        if (e.target.classList.contains('edit-btn')) handleEdit(Id);
 
-        if (target.classList.contains('delete-btn')) {
-            const studentId = target.getAttribute('data-id');
-            handleDelete(studentId);
-        }
+        if (e.target.classList.contains('delete-btn')) handleDelete(Id);
 
-        if (target.classList.contains('PDF-generate')) {
-            const studentId = target.getAttribute('data-id');
-            handlePDF(studentId);
-        }
+        if (e.target.classList.contains('PDF-generate')) handlePDF(Id);
+
     });
 });
 
 function fetchtableData() {
     fetch('server/fetch.php')
         .then(response => response.json())
-        .then(data => {
-            const tableBody = document.getElementById('studentTableBody');
-            tableBody.innerHTML = data.result;
-        })
+        .then(data => { document.getElementById('studentTableBody').innerHTML = data.result; })
 }
 
-function handleEdit(studentId) {
+function handleEdit(id) {
     resetForm();
-    const form = document.getElementById('studentForm');
     const formData = new FormData();
-    formData.append('id', studentId);
+    formData.append('id', id);
 
     fetch('server/getStudent.php', {
         method: 'POST',
@@ -93,61 +75,42 @@ function handleEdit(studentId) {
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
-                const student = data.data;
                 // populate fields
-                document.getElementById('studentName').value = student.full_name;
-                document.getElementById('dob').value = student.dob;
-                document.getElementById('email').value = student.email;
-                document.getElementById('phone').value = student.phone;
-
-                document.querySelectorAll('input[name="gender"]').forEach(radio => {
-                    if (radio.value === student.gender) {
-                        radio.checked = true;
-                    }
+                const s = data.data;
+                ['studentName', 'dob', 'email', 'phone', 'address', 'pincode', 'country'].forEach(id => {
+                    document.getElementById(id).value = s[id] || s.full_name || '';
                 });
 
-                document.getElementById('address').value = student.address;
-                document.getElementById('pincode').value = student.pincode;
-                document.getElementById('country').value = student.country;
+                document.querySelectorAll('input[name="gender"]').forEach((r => r.checked = r.value === s.gender));
 
                 getStates();
-                document.getElementById('state').value = student.state;
-
+                document.getElementById('state').value = s.state;
                 setTimeout(() => {
                     getCities();
-                    setTimeout(() => {
-                        document.getElementById('city').value = student.city;
-                    }, 100);
+                    setTimeout(() => document.getElementById('city').value = s.city, 100);
                 }, 100);
-                form.setAttribute('data-update-id', studentId);
-                console.log(student.documents);
 
-                existingFiles = student.documents;
+                existingFiles = s.documents;
                 updateDocs();
-
-                const submitButton = document.querySelector('button[type="submit"]');
-                submitButton.innerText = 'Update';
-                submitButton.classList.remove('btn-primary');
-                submitButton.classList.add('btn-warning');
+                document.getElementById('studentForm').dataset.updateId = id;
+                const btn = document.querySelector('button[type="submit"]');
+                btn.innerText = 'Update';
+                btn.classList.replace('btn-primary', 'btn-warning');
             } else {
                 showErrorAlert('Error!', data.message);
             }
         })
-        .catch(error => {
-            console.error('Error:', error);
+        .catch(e => {
             showErrorAlert('Error!', 'Unexpected error.');
         });
 }
 
-function handleDelete(studentId) {
-    showConfirmationDialog(
-        'Are you sure?',
-        'You won\'t be able to revert this!',
-        'Yes, delete it!'
+function handleDelete(id) {
+    showConfirmationDialog('Are you sure?', 'This action cannot be undone.', 'Yes, delete it!'
     ).then((result) => {
         if (result.isConfirmed) {
             const formData = new FormData();
-            formData.append('id', studentId);
+            formData.append('id', id);
 
             fetch('server/delete.php', {
                 method: 'POST',
@@ -156,23 +119,22 @@ function handleDelete(studentId) {
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        fetchtableData();
                         showSuccessAlert('Deleted!', data.message || 'Student has been deleted.');
+                        fetchtableData();
                     } else {
                         showErrorAlert('Error!', data.message);
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
                     showErrorAlert('Error!', 'Unexpected error.');
                 });
         }
     });
 }
 
-function handlePDF(studentId) {
+function handlePDF(id) {
     const formData = new FormData();
-    formData.append('id', studentId);
+    formData.append('id', id);
     fetch('server/generatePDF.php', {
         method: 'POST',
         body: formData
@@ -181,20 +143,13 @@ function handlePDF(studentId) {
             if (data.status === 'success') {
                 const PDFview = document.getElementById('resultContainer');
                 PDFview.innerHTML = data.data;
-                // Show the result container
                 PDFview.style.display = 'block';
-                PDFview.scrollIntoView({ behavior: 'smooth' });
-                // Hide the form
-                const form = document.getElementById('studentForm');
-                form.style.display = 'none';
+                document.getElementById('studentForm').style.display = 'none';
                 document.getElementById("downloadBtn").addEventListener("click", function () {
-
-                    // clearing buttons from pdf view
                     document.getElementById("btn-g").style.display = 'none';
-                    var pdfContent = document.getElementById("resultContainer").innerHTML;
                     const formdata = new FormData();
-                    formdata.append('pdfContent', pdfContent);
-                    formdata.append('id', studentId);
+                    formdata.append('pdfContent', PDFview.innerHTML);
+                    formdata.append('id', id);
                     // Send the PDF content to the server for saving
                     fetch('server/savePDF.php', {
                         method: 'POST',
@@ -202,11 +157,9 @@ function handlePDF(studentId) {
                     })
                         .then(response => response.json())
                         .then(data => {
-                            if (data.status === 'success') {
-                                showSuccessAlert('Success!', data.message);
-                            } else {
+                            data.status === 'success' ?
+                                showSuccessAlert('Success!', data.message) :
                                 showErrorAlert('Error!', data.message);
-                            }
                         })
                         .catch(error => {
                             console.error('Error:', error);
@@ -215,18 +168,12 @@ function handlePDF(studentId) {
                     // Hide the PDF view and show the form again
                     resetForm();
                 });
-                document.getElementById("closeBtn").addEventListener("click", function () {
-                    // Hide the PDF view and show the form again
-                    resetForm();
-                });
+                document.getElementById("closeBtn").onclick = resetForm;
             }
             else {
                 showErrorAlert('Error!', data.message);
-                // Show error messages
-                console.log(data.errors);
             }
-        }
-        )
+        })
         .catch(error => {
             console.error('Error:', error);
             showErrorAlert('Error!', 'Unexpected error.');
@@ -243,100 +190,22 @@ function showErrorAlert(title, message) {
 
 function showConfirmationDialog(title, text, confirmText = 'Yes, do it!') {
     return Swal.fire({
-        title,
-        text,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: confirmText,
+        title, text, icon: 'warning', showCancelButton: true,
+        confirmButtonColor: '#d33', cancelButtonColor: '#3085d6',
+        confirmButtonText: confirmText
     });
 }
-// Function to handle country selection and populate states
-function getStates() {
-    const country = document.getElementById('country').value;
-    const stateSelect = document.getElementById('state');
-    const citySelect = document.getElementById('city');
 
-    // Reset state dropdown
-    stateSelect.innerHTML = '<option value="" selected disabled>Select State</option>';
-    stateSelect.disabled = false;
-
-    // Reset city dropdown
-    citySelect.innerHTML = '<option value="" selected disabled>Select City</option>';
-    citySelect.disabled = true;
-
-    const states = getStatesByCountry(country);
-
-    if (states.length > 0) {
-        states.forEach(state => {
-            const option = document.createElement('option');
-            option.text = state;
-            option.value = state;
-            stateSelect.add(option);
-        });
-    } else {
-        stateSelect.disabled = true;
-    }
-}
-
-// Function to return states based on selected country
-function getStatesByCountry(country) {
-    const states = {
-        'India': ['Andhra Pradesh', 'Arunachal Pradesh', 'Assam',],
-        'USA': ['Alabama', 'Alaska', 'Arizona']
-    };
-    return states[country] || [];
-}
-
-// Function to handle state selection and populate cities
-function getCities() {
-    const state = document.getElementById('state').value;
-    const citySelect = document.getElementById('city');
-
-    citySelect.innerHTML = '<option value="" selected disabled>Select City</option>';
-    const cities = getCitiesByState(state);
-
-    if (cities.length > 0) {
-        cities.forEach(city => {
-            const option = document.createElement('option');
-            option.text = city;
-            option.value = city;
-            citySelect.add(option);
-        });
-
-        citySelect.disabled = false;
-        citySelect.style.display = 'block';
-    } else {
-        citySelect.disabled = true;
-        citySelect.style.display = 'none';
-    }
-}
-
-// Function to return cities based on selected state
-function getCitiesByState(state) {
-    const cities = {
-        'Andhra Pradesh': ['Visakhapatnam', 'Vijayawada', 'Guntur', 'Nellore', 'Tirupati'],
-        'Arunachal Pradesh': ['Itanagar', 'Naharlagun', 'Pasighat', 'Tezpur'],
-        'Assam': ['Guwahati', 'Silchar', 'Dibrugarh', 'Jorhat'],
-        'Alabama': ['Birmingham', 'Montgomery', 'Huntsville', 'Mobile'],
-        'Alaska': ['Anchorage', 'Fairbanks', 'Juneau', 'Sitka'],
-        'Arizona': ['Phoenix', 'Tucson', 'Mesa', 'Chandler'],
-        // Add more states and their cities as needed
-    };
-    return cities[state] || [];
-}
-
-// Utility functions to get selected values
-function getCountry() {
-    return document.getElementById('country').value;
-}
-function getState() {
-    return document.getElementById('state').value;
-}
-function getCity() {
-    return document.getElementById('city').value;
-}
+const showValidationErrors = (errors = {}) => {
+    Object.entries(errors).forEach(([field, messages]) => {
+        const el = document.querySelector(`.${field}-error`);
+        if (el) {
+            el.innerText = messages.join(', ');
+            el.classList.add('text-danger');
+            el.style.display = 'block';
+        }
+    });
+};
 
 // Utility function to reset form
 function resetForm() {
@@ -345,138 +214,143 @@ function resetForm() {
     removedFiles = [];
 
     const form = document.getElementById('studentForm');
-    if (form) {
-        form.setAttribute('data-update-id', '');
-        form.style.display = 'block';
-        form.reset();
-    }
+    form.reset();
+    form.style.display = 'block';
+    form.dataset.updateId = '';
 
     const PDFview = document.getElementById('resultContainer');
-    if (PDFview) {
-        PDFview.style.display = 'none';
-        PDFview.innerHTML = '';
-    }
-    const el = document.querySelector('.imagePreview')
-    if (el) el.innerHTML = '';
+    PDFview.innerHTML = '';
+    PDFview.style.display = 'none';
+
+    document.querySelector('.imagePreview').innerHTML = '';
+
+    document.querySelectorAll('.text-danger').forEach(el => {
+        el.innerText = '';
+        el.classList.remove('text-danger');
+        el.style.display = 'none';
+    });
 
     const submitButton = document.querySelector('button[type="submit"]');
     if (submitButton) {
         submitButton.innerText = 'Save';
-        submitButton.classList.remove('btn-warning');
-        submitButton.classList.add('btn-primary');
+        submitButton.classList.replace('btn-warning', 'btn-primary');
     }
 }
+
+// Function to handle country selection and populate states
+function getStates() {
+    const country = getCountry();
+    const stateSelect = document.getElementById('state');
+    const citySelect = document.getElementById('city');
+
+    stateSelect.innerHTML = `<option disabled selected>Select State</option>`;
+    citySelect.innerHTML = `<option disabled selected>Select City</option>`;
+    citySelect.disabled = true;
+
+    const states = getStatesByCountry(country);
+    states.forEach(state => stateSelect.add(new Option(state, state)));
+    stateSelect.disabled = states.length === 0;
+}
+
+// Function to handle state selection and populate cities
+function getCities() {
+    const state = getState();
+    const citySelect = document.getElementById('city');
+    const cities = getCitiesByState(state);
+
+    citySelect.innerHTML = `<option disabled selected>Select City</option>`;
+    cities.forEach(city => citySelect.add(new Option(city, city)));
+    citySelect.disabled = cities.length === 0;
+}
+
+// Function to return states based on selected country
+function getStatesByCountry(country) {
+    return {
+        'India': ['Andhra Pradesh', 'Arunachal Pradesh', 'Assam'],
+        'USA': ['Alabama', 'Alaska', 'Arizona']
+    }[country] || []
+}
+
+
+// Function to return cities based on selected state
+function getCitiesByState(state) {
+    return {
+        'Andhra Pradesh': ['Visakhapatnam', 'Vijayawada'],
+        'Arunachal Pradesh': ['Itanagar', 'Naharlagun'],
+        'Assam': ['Guwahati', 'Silchar'],
+        'Alabama': ['Birmingham', 'Montgomery'],
+        'Alaska': ['Anchorage', 'Juneau'],
+        'Arizona': ['Phoenix', 'Tucson']
+    }[state] || [];
+}
+
+// Utility functions to get selected values
+function getCountry() { return document.getElementById('country').value; }
+function getState() { return document.getElementById('state').value; }
+function getCity() { return document.getElementById('city').value; }
 
 function updateDocs() {
     const fileInput = document.getElementById('documents');
-    const previewContainer = document.querySelector('.imagePreview');
+    const preview = document.querySelector('.imagePreview');
     const size = 5 * 1024 * 1024;
-
-    previewContainer.innerHTML = ''; // clear old previews
+    preview.innerHTML = "";
 
     // Display previously uploaded files
-    if (existingFiles && existingFiles.length > 0) {
-        existingFiles.forEach(fileName => {
-            const imgDiv = document.createElement('div');
-            imgDiv.className = 'img-thumbnail m-2 position-relative';
-            imgDiv.style.display = 'inline-block';
-            imgDiv.style.width = '100px';
-            imgDiv.dataset.existing = 'true';
-            imgDiv.dataset.fileName = fileName;
+    existingFiles.forEach(file => {
+        const div = createPreviewDiv(`/../uploads/${file}`, file);
+        div.querySelector('button').onclick = () => {
+            removedFiles.push(file);
+            existingFiles = existingFiles.filter(f => f !== file);
+            preview.removeChild(div);
+        };
+        preview.appendChild(div);
+    });
 
-            imgDiv.innerHTML = `
-                <img src="/../uploads/${fileName}" style="width: 100%; height: auto;" />
-                <button class="btn btn-sm btn-danger position-absolute top-0 end-0" title="Remove">&times;</button>
-            `;
-
-            imgDiv.querySelector('button').addEventListener('click', () => {
-                removedFiles.push(fileName);
-                existingFiles = existingFiles.filter(f => f !== fileName);
-                previewContainer.removeChild(imgDiv);
-            });
-            previewContainer.appendChild(imgDiv);
-        });
-    }
-
-    Array.from(fileInput.files).forEach((file, index) => {
-        if (!file.type.startsWith('image/')) {
-            showErrorAlert('Invalid File', 'Only image files are allowed.');
-            return;
-        }
-
-        if (file.size > size) {
-            showErrorAlert('File Too Large', 'Each file must be less than 5MB.');
-            return;
-        }
-
-        // Enforce max file limit
-        if ((selectedFiles.length + existingFiles.length) >= 5) {
-            showErrorAlert('Limit Reached', 'You can only upload a maximum of 5 files.');
-            return;
-        }
-
-        // Check for duplicates by name and size
-        const isDuplicate = selectedFiles.some(f => f.name === file.name && f.size === file.size);
-        if (isDuplicate) {
-            showErrorAlert('Duplicate File', `"${file.name}" has already been added.`);
-            return;
-        }
+    Array.from(fileInput.files).forEach(file=> {
+        if (!file.type.startsWith('image/')) return showErrorAlert('Invalid File', 'Only image files allowed.');
+        if (file.size > size) return showErrorAlert('File Too Large', 'Each file < 5MB.');
+        if ((selectedFiles.length + existingFiles.length) >= 5)
+            return showErrorAlert('Limit Reached', 'Max 5 files allowed.');
+        if (selectedFiles.some(f => f.name === file.name && f.size === file.size) || existingFiles.some(f => f === file.name))
+            return showErrorAlert('Duplicate File', `"${file.name}" is already added.`);
 
         selectedFiles.push(file);
 
+    });
+    fileInput.value = '';
+
+    selectedFiles.forEach(file => {
         const reader = new FileReader();
-        reader.onload = function (e) {
-            const imgDiv = document.createElement('div');
-            imgDiv.className = 'img-thumbnail m-2 position-relative';
-            imgDiv.style.display = 'inline-block';
-            imgDiv.style.width = '100px';
-
-            // Store file in dataset
-            imgDiv.dataset.fileName = file.name;
-            imgDiv.dataset.fileSize = file.size;
-
-            imgDiv.innerHTML = `
-            <img src="${e.target.result}" style="width: 100%; height: auto;" />
-            <button class="btn btn-sm btn-danger position-absolute top-0 end-0" title="Remove">&times;</button>`;
-
-            imgDiv.querySelector('button').addEventListener('click', () => {
-                // Find index dynamically
-                const fileName = imgDiv.dataset.fileName;
-                const fileSize = Number(imgDiv.dataset.fileSize);
-
-                const fileIndex = selectedFiles.findIndex(f => f.name === fileName && f.size === fileSize);
-
-                if (fileIndex !== -1) {
-                    selectedFiles.splice(fileIndex, 1);
-                }
-
-                previewContainer.removeChild(imgDiv);
-                if (selectedFiles.length === 0 && existingFiles.length === 0) {
-                    previewContainer.innerHTML = '';
-                }
-                console.log(selectedFiles);
-            });
-            previewContainer.appendChild(imgDiv);
+        reader.onload = (e) => {
+            const div = createPreviewDiv(e.target.result, file.name);
+            div.querySelector('button').onclick = () => {
+                selectedFiles = selectedFiles.filter(f => !(f.name === file.name));
+                preview.removeChild(div);
+            };
+            preview.appendChild(div);
         };
         reader.readAsDataURL(file);
     });
-    // Clear original input so re-selecting same file triggers change
-    fileInput.value = '';
 }
+
+const createPreviewDiv = (src, name) => {
+    const div = document.createElement('div');
+    div.className = 'img-thumbnail m-2 position-relative';
+    div.style = 'display:inline-block;width:100px;';
+    div.dataset.fileName = name;
+    div.innerHTML = `
+        <img src="${src}" style="width: 100%; height: auto;" />
+        <button class="btn btn-sm btn-danger position-absolute top-0 end-0" title="Remove">&times;</button>
+    `;
+    return div;
+};
 
 // Utility function to get form data
 async function getFormData() {
-    console.log(selectedFiles);
-
     const form = document.getElementById('studentForm');
     const formData = new FormData(form);
 
-    if (existingFiles.length > 0) {
-        formData.append('existingFiles', existingFiles.join(', ')); // previously uploaded & not deleted
-    }
-    if (removedFiles.length > 0) {
-        formData.append('removedFiles', removedFiles.join(', ')); // to delete from server
-    }
-
+    if (existingFiles.length) formData.append('existingFiles', existingFiles.join(', ')); // previously uploaded & not deleted
+    if (removedFiles.length) formData.append('removedFiles', removedFiles.join(', ')); // to delete from server
     return formData;
 }

@@ -4,7 +4,7 @@ require 'db.php';
 // Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['status' => 'error', 'message' => 'Invalid request method.']);
-    exit();
+    exit;
 }
 
 // Include the validation class

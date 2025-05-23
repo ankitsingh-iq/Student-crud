@@ -94,14 +94,14 @@
                     </div>
                     <div>
                         <label for="state" class="form-label">State</label>
-                        <select id="state" name="state"  class="form-select" onchange="getCities()" disabled>
+                        <select id="state" name="state" class="form-select" onchange="getCities()" disabled>
                             <option value="" selcted diabled>Select State</option>
                         </select>
                         <p class="state-error"></p>
                     </div>
                     <div>
                         <label for="city" class="form-label">City</label>
-                        <select id="city" name="city"  class="form-select" disabled >
+                        <select id="city" name="city" class="form-select" disabled>
                             <option value="" selcted diabled>Select City</option>
                         </select>
                         <p class="city-error"></p>
@@ -113,7 +113,7 @@
                 <div class="imagePreview"></div>
                 <div class="mb-3">
                     <label for="documents" class="form-label">Upload Documents</label>
-                    <input class="form-control" type="file" id="documents" multiple onchange="updateDocs()"/>
+                    <input class="form-control" type="file" id="documents" multiple onchange="updateDocs()" />
                     <p class="documents-error"></p>
                 </div>
 
@@ -150,7 +150,8 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
     <script src="js/script.js"></script>
 </body>
-
 </html>

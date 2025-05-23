@@ -56,9 +56,8 @@ if (!empty($student['documents'])) {
         if ($doc !== '') {
             $filePath = $uploadDir . $doc;
             if (file_exists($filePath)) {
-                $imageData = base64_encode(file_get_contents($filePath));
-                $src = 'data:image/' . pathinfo($filePath, PATHINFO_EXTENSION) . ';base64,' . $imageData;
-                $html .= '<div style="margin: 5px;"><img src="' . $src . '" alt="document" style="width: 100px; height: auto; border: 1px solid #ddd; padding: 2px;" /></div>';
+                $filePath = 'http://localhost:8000' . '/uploads/' . $doc;
+                $html .= '<div style="margin: 5px;"><img src="' . $filePath . '" alt="document" style="width: 100px; height: auto; border: 1px solid #ddd; padding: 2px;" /></div>';
             } else {
                 $html .= '<div style="margin: 5px;">[Missing Image: ' . htmlspecialchars($doc) . ']</div>';
             }
@@ -133,6 +132,7 @@ $html .= '
         }
     </style>
 ';
+
 // Return the HTML as a JSON response
 // This will be used to generate the PDF
 echo json_encode([
