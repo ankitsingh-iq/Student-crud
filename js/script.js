@@ -27,9 +27,14 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        fetch(endpoint, { method: 'POST', body: formData })
-            .then(response => response.json())
-            .then(data => {
+        $.ajax({
+            url: endpoint,
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            dataType: 'json',
+            success: function (data) {
                 if (data.status === 'success') {
                     resetForm();
                     fetchtableData();
@@ -38,11 +43,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     showErrorAlert('Error!', data.message);
                     showValidationErrors(data.errors);
                 }
-            })
-            .catch(error => {
+            },
+            error: function (error) {
                 console.error('Error:', error);
                 showErrorAlert('Error!', 'Unexpected error.');
-            });
+            }
+        })
     });
 
     tableBody.addEventListener('click', function (e) {
@@ -58,9 +64,13 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function fetchtableData() {
-    fetch('server/fetch.php')
-        .then(response => response.json())
-        .then(data => { document.getElementById('studentTableBody').innerHTML = data.result; })
+    $.ajax({
+        url: 'server/fetch.php',
+        dataType: 'json',
+        success: function (data) {
+            document.getElementById('studentTableBody').innerHTML = data.result;
+        }
+    })
 }
 
 function handleEdit(id) {
@@ -68,12 +78,14 @@ function handleEdit(id) {
     const formData = new FormData();
     formData.append('id', id);
 
-    fetch('server/getStudent.php', {
+    $.ajax({
+        url: 'server/getStudent.php',
         method: 'POST',
-        body: formData
-    })
-        .then(response => response.json())
-        .then(data => {
+        data: formData,
+        processData: false,
+        contentType: false,
+        dataType: 'json',
+        success: function (data) {
             if (data.status === 'success') {
                 // populate fields
                 const s = data.data;
@@ -99,10 +111,12 @@ function handleEdit(id) {
             } else {
                 showErrorAlert('Error!', data.message);
             }
-        })
-        .catch(e => {
+        },
+        error: function (error) {
+            console.error('Error:', error);
             showErrorAlert('Error!', 'Unexpected error.');
-        });
+        }
+    })
 }
 
 function handleDelete(id) {
@@ -111,23 +125,26 @@ function handleDelete(id) {
         if (result.isConfirmed) {
             const formData = new FormData();
             formData.append('id', id);
-
-            fetch('server/delete.php', {
+            $.ajax({
+                url: 'server/delete.php',
                 method: 'POST',
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function (data) {
                     if (data.status === 'success') {
                         showSuccessAlert('Deleted!', data.message || 'Student has been deleted.');
                         fetchtableData();
                     } else {
                         showErrorAlert('Error!', data.message);
                     }
-                })
-                .catch(error => {
+                },
+                error: function (error) {
+                    console.error('Error:', error);
                     showErrorAlert('Error!', 'Unexpected error.');
-                });
+                }
+            })
         }
     });
 }
@@ -135,11 +152,14 @@ function handleDelete(id) {
 function handlePDF(id) {
     const formData = new FormData();
     formData.append('id', id);
-    fetch('server/generatePDF.php', {
+    $.ajax({
+        url: 'server/generatePDF.php',
         method: 'POST',
-        body: formData
-    }).then(response => response.json())
-        .then(data => {
+        data: formData,
+        processData: false,
+        contentType: false,
+        dataType: 'json',
+        success: function (data) {
             if (data.status === 'success') {
                 const PDFview = document.getElementById('resultContainer');
                 PDFview.innerHTML = data.data;
@@ -151,20 +171,23 @@ function handlePDF(id) {
                     formdata.append('pdfContent', PDFview.innerHTML);
                     formdata.append('id', id);
                     // Send the PDF content to the server for saving
-                    fetch('server/savePDF.php', {
+                    $.ajax({
+                        url: 'server/savePDF.php',
                         method: 'POST',
-                        body: formdata,
-                    })
-                        .then(response => response.json())
-                        .then(data => {
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        dataType: 'json',
+                        success: function (data) {
                             data.status === 'success' ?
                                 showSuccessAlert('Success!', data.message) :
                                 showErrorAlert('Error!', data.message);
-                        })
-                        .catch(error => {
+                        },
+                        error: function (error) {
                             console.error('Error:', error);
                             showErrorAlert('Error!', 'Unexpected error.');
-                        });
+                        }
+                    })
                     // Hide the PDF view and show the form again
                     resetForm();
                 });
@@ -173,11 +196,12 @@ function handlePDF(id) {
             else {
                 showErrorAlert('Error!', data.message);
             }
-        })
-        .catch(error => {
+        },
+        error: function (error) {
             console.error('Error:', error);
             showErrorAlert('Error!', 'Unexpected error.');
-        });
+        }
+    })
 }
 
 function showSuccessAlert(title, message) {
@@ -306,7 +330,7 @@ function updateDocs() {
         preview.appendChild(div);
     });
 
-    Array.from(fileInput.files).forEach(file=> {
+    Array.from(fileInput.files).forEach(file => {
         if (!file.type.startsWith('image/')) return showErrorAlert('Invalid File', 'Only image files allowed.');
         if (file.size > size) return showErrorAlert('File Too Large', 'Each file < 5MB.');
         if ((selectedFiles.length + existingFiles.length) >= 5)
