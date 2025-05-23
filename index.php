@@ -146,7 +146,7 @@ require_once __DIR__ . '/server/config/config.php';
                 </form>
               </div>
               <div class="col-6 d-flex flex-column justify-content-end">
-                <label class="form-label">Export Data</label>
+                
                 <button id="exportbtn" class="btn btn-secondary w-100 mt-auto">
                   <i class="bi bi-cloud-arrow-down-fill"></i> Export Data
                 </button>

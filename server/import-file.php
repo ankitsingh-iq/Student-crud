@@ -74,7 +74,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 // 5. Insert data into the database
                 $allInserted = true;
                 foreach ($studentsData as $student) {
+                    $coutry = $student['country'];
+                    $state = $student['state'];
+                    $city = $student['city'];
 
+                    $serchcountry = "SELECT id FROM tbi_countries WHERE name = '$coutry'";
                     $colomns = implode(", ", array_keys($student));
                     $values = implode("', '", array_values($student));
 

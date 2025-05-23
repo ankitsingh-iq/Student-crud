@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // echo('</pre>');
         $uploadDir = __DIR__ .'/../uploads/';
         // Loop through all uploaded files
-        $allowedTypes = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
+        $allowedTypes = ['jpg', 'jpeg', 'png'];
         for ($i = 0; $i < count($_FILES['documents']['name']); $i++) {
             $fileName = $_FILES['documents']['name'][$i];
             $fileTmpName = $_FILES['documents']['tmp_name'][$i];
@@ -67,10 +67,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
             if (!in_array($fileExt, $allowedTypes)) {
-                http_response_code(400);
+                http_response_code(500);
                 echo json_encode([
                     "status" => "error",
-                    "errors" => ["file" => "Invalid file type: " . $fileName]
+                    "errors" => ["documents[]" => "Invalid file type: " . $fileName]
                 ]);
                 exit;
             }
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     http_response_code(500);
                     echo json_encode([
                         "status" => "error",
-                        "errors" => ["file" => "Failed to upload file: " . $fileName]
+                        "errors" => ["documents[]" => "Failed to upload file: " . $fileName]
                     ]);
                     exit;
                 }
@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 http_response_code(500);
                 echo json_encode([
                     "status" => "error",
-                    "errors" => ["file" => "Error uploading file: " . $fileName]
+                    "errors" => ["documents[]" => "Error uploading file: " . $fileName]
                 ]);
                 exit;
             }
@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         http_response_code(500);
         echo json_encode([
             "status" => "error",
-            "errors" => ["file" => "No File Uplord"]
+            "errors" => ["documents[]" => "No File Uplord"]
         ]);
         exit;
     }
